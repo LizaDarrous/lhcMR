@@ -1,13 +1,13 @@
 Package: lhcMR
-Title: What the Package Does (One Line, Title Case)
+Title: Latent Heritable Confounder - Mendelian Randomisation
 Version: 0.0.0.9000
 Authors@R: 
-    person(given = "First",
-           family = "Last",
+    person(given = "Liza",
+           family = "Darrous",
            role = c("aut", "cre"),
-           email = "first.last@example.com",
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
+           email = "liza.darrous@unil.ch",
+           comment = c(ORCID = "0000-0002-0056-4127"))
+Description: lhcMR esimates a causal effect between two traits while accounting for a possible latent heritable confounder acting on them, as well as sample overlap.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
@@ -15,3 +15,4 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1
 Imports: 
     magrittr
+URL: https://github.com/LizaDarrous/lhcMR
