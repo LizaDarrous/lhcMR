@@ -14,5 +14,11 @@ LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1
 Imports: 
-    magrittr
+    data.table,
+    dplyr,
+    GenomicSEM,
+    magrittr,
+    stats,
+    TwoSampleMR
 URL: https://github.com/LizaDarrous/lhcMR
+BugReports: https://github.com/LizaDarrous/lhcMR/issues

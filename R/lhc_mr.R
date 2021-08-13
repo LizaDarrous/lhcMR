@@ -1,0 +1,391 @@
+lhc_mr = function(input.df_filtered,trait.names,sp_mat,iX,iY,piX,piY,SP_pair=100,partition,run_SingleStep=FALSE,
+                  run_TwoStep=TRUE,paral_method="rslurm",nBlock=200){
+
+  # generate a dataframe of lists for each row of parameters - input for rslurm/lapply
+  par.df = data.frame(par=I(apply(sp_mat,1,as.list)))
+
+  # parameters set up
+  piU=0.1
+  bn = 2^7
+  bins = 10
+  param="comp"
+  EXP = trait.names[1]
+  OUT = trait.names[2]
+
+  # data set up
+  nX = mean(input.df_filtered$N.x)  #Get sample size for trait X
+  nY = mean(input.df_filtered$N.y)  #Get sample size for trait Y
+  m0 = mean(input.df_filtered$M_LOCAL) ##Get number of SNPs used to calculate the local LD
+
+  bX = input.df_filtered$TSTAT.x/sqrt(nX)   #Get standardised beta for trait X
+  bY = input.df_filtered$TSTAT.y/sqrt(nY)   #Get standardised beta for trait Y
+  betXY = cbind(bX,bY)
+
+  ld = input.df_filtered$LDSC
+  weights = input.df_filtered$WEIGHT
+  pi1 = input.df_filtered$PIK
+  sig1 = input.df_filtered$SIGK
+
+  # generate a data frame of positions for block JK - used for SP generation
+  uniqPos = seq(1:nrow(input.df_filtered))
+  nBlock = nBlock
+  nSNP = nrow(betXY) %/% nBlock
+  limit = nBlock * nSNP
+  leftover = as.numeric(nrow(betXY) %% nSNP )
+  start_ind = uniqPos[seq(1, limit, nSNP)]
+  end_ind = start_ind+(nSNP-1)
+  end_ind[length(end_ind)]=end_ind[length(end_ind)]+leftover #add any leftover SNPs to last block
+
+  JK_index=cbind(start_ind,end_ind)
+
+  # run analysis based on parallelisation method/number of steps
+  if(run_TwoStep){
+    parscale = c(1e-1,1e-1,1e-1,1e-1,1e-1,1e-1,1e-1)
+    if(paral_method=="rslurm"){
+      sjob = slurm_apply(f = slurm_pairTrait_twoStep_likelihood, params = par.df, jobname = paste0(EXP,"-",OUT,"_optim"), nodes = SP_pair, cpus_per_node = 1,
+                         add_objects = c("betXY","pi1","sig1","weights","m0","nX","nY","piU","piX","piY",
+                                         "iX","iY","param","bn","bins","parscale"),
+                         slurm_options = list(partition = partition),
+                         submit = TRUE)
+      #Keep a loop open till the job is completely done.
+      wait_counter = 0
+      while (wait_counter < 1) {
+        wait_counter = 0
+        if (tryCatch(str_detect(get_job_status(sjob),"completed"), warning = function(w){FALSE},
+                     error = function(e){FALSE})) {
+          wait_counter = wait_counter + 1
+        } else{
+          wait_counter = wait_counter
+        }
+      }
+      #Get output of minus log likelihood (mLL) and estimated parameters from rslurm in the form of a table with nrows equal to nrows(par.df)
+      res_temp = get_slurm_out(sjob, outtype = 'table')
+      res_values = as.data.frame(do.call(rbind, res_temp[[1]]))
+      res_values %>%
+        mutate(h2X = abs(h2X),
+               h2Y = abs(h2Y),
+               tX = abs(tX)) -> res_values
+      res_values = cbind("SP"=c(1:nrow(res_values)),"mLL"=res_values[,1],"piX"=piX,"piY"=piY,res_values[,-1],"iX"=iX,"iY"=iY)
+      write.csv(res_values, paste0("FullRes_",EXP,"-",OUT,".csv"), row.names = FALSE)
+
+      cleanup_files(sjob)
+
+      ## running blockJK
+      res_ordered = res_values[order(res_values$mLL, decreasing = F),]
+      sp_mat2 = select(res_ordered,h2X,h2Y,tX,tY,alp,bet,iXY)
+      sp_mat2 = sp_mat2[1,]
+
+      par.df2 = data.frame(par=I(apply(sp_mat2,1,as.list))) #generate a dataframe of lists for each row of parameters - input for rslurm
+      par.df2 = merge(par.df2,JK_index)
+
+      sjob2 = slurm_apply(f = slurm_blockJK_twoStep_likelihood, params = par.df2, jobname = paste0(EXP,"-",OUT,"_blockJK"), nodes = nrow(par.df2), cpus_per_node = 1,
+                         add_objects = c("betXY","pi1","sig1","weights","m0","nX","nY","pi_U","pi_X","pi_Y",
+                                         "i_X","i_Y","param","bn","bins","parscale"),
+                         slurm_options = list(partition = partition),
+                         submit = TRUE)
+      #Keep a loop open till the job is completely done.
+      wait_counter = 0
+      while (wait_counter < 1) {
+        wait_counter = 0
+        if (tryCatch(str_detect(get_job_status(sjob2),"completed"), warning = function(w){FALSE},
+                     error = function(e){FALSE})) {
+          wait_counter = wait_counter + 1
+        } else{
+          wait_counter = wait_counter
+        }
+      }
+
+      res_temp2 = get_slurm_out(sjob2, outtype = 'table')
+      res_values2 = as.data.frame(do.call(rbind, res_temp2[[1]]))
+      res_values2 %>%
+        mutate(h2X = abs(h2X),
+               h2Y = abs(h2Y),
+               tX = abs(tX)) -> res_values2
+
+      write.csv(res_values2, paste0("FullRes_",EXP,"-",OUT,"_blockJK.csv"), row.names = FALSE)
+
+    }
+
+    if(paral_method=="lapply"){
+      test.res <- lapply(par.df[[1]], function(x) {
+        theta = unlist(x)
+        test = optim(theta, pairTrait_twoStep_likelihood,
+                      betX=bX, pi1=pi1, sig1=sig1, weights=weights,
+                      m0=m0, nX=nX, pi_U=piU, pi_X=piX, pi_Y=piY, bn=2^7, bins=10,
+                      method = "Nelder-Mead",
+                      control = list(maxit = 5e3))
+
+        list("mLL"=test$value,"par"=test$par,"conv"=test$convergence)
+      })
+
+      test.res = as.data.frame(t(matrix(unlist(test.res), nrow=length(unlist(test.res[1])))))
+      colnames(test.res)=c("mLL", "h2X","h2Y","tX","tY","alp","bet","iXY","conv")
+
+      test.res %>%
+        mutate(h2X = abs(h2X),
+               h2Y = abs(h2Y),
+               tX = abs(tX)) -> res_values
+
+      res_values = cbind("SP"=c(1:nrow(res_values)),"mLL"=res_values[,1],"piX"=piX,"piY"=piY,res_values[,-1],"iX"=iX,"iY"=iY)
+      write.csv(res_values, paste0("FullRes_",EXP,"-",OUT,".csv"), row.names = FALSE) ## Will be used to read new sp_mat
+
+      ## running blockJK
+      res_ordered = res_values[order(res_values$mLL, decreasing = F),]
+      sp_mat2 = select(res_ordered,h2X,h2Y,tX,tY,alp,bet,iXY)
+      sp_mat2 = sp_mat2[1,]
+
+      par.df2 = data.frame(par=I(apply(sp_mat2,1,as.list))) #generate a dataframe of lists for each row of parameters - input for rslurm
+      par.df2 = merge(par.df2,JK_index)
+
+      test.res1 <- lapply(split(par.df2,1:nrow(par.df2)), function(x) {
+        theta = unlist(x[1])
+        start_ind = x[2]
+        end_ind = x[3]
+        test1 = optim(theta, pairTrait_twoStep_likelihood,
+                     betXY=betXY[-(start_ind:end_ind),], pi1=pi1[-(start_ind:end_ind)], sig1=sig1[-(start_ind:end_ind)],
+                     weights=weights[-(start_ind:end_ind)], pi_U=pi_U,
+                     pi_X=pi_X, pi_Y=pi_Y, i_X=i_X, i_Y=i_Y,
+                     m0=m0, nX=nX, nY=nY, bn=bn, bins=bins, model=param,
+                     method = "Nelder-Mead",
+                     control = list(maxit = 5e3,
+                                    parscale = parscale))
+
+        list("mLL"=test1$value,"par"=test1$par,"conv"=test1$convergence)
+      })
+
+      test.res1 = as.data.frame(t(matrix(unlist(test.res1), nrow=length(unlist(test.res1[1])))))
+      colnames(test.res1)=c("mLL", "h2X","h2Y","tX","tY","alp","bet","iXY","conv")
+
+      test.res1 %>%
+        mutate(h2X = abs(h2X),
+               h2Y = abs(h2Y),
+               tX = abs(tX)) -> res_values2
+
+      write.csv(res_values2, paste0("FullRes_",EXP,"-",OUT,"_blockJK.csv"), row.names = FALSE)
+
+    }
+
+  }
+
+
+  if(run_SingleStep){
+    parscale = c(1e-4,1e-4,1e-1,1e-1,1e-1,1e-1,1e-1,1e-1,1e-1)
+    if(paral_method=="rslurm"){
+      sjob = slurm_apply(f = slurm_pairTrait_singleStep_likelihood, params = par.df, jobname = paste0(EXP,"_",OUT), nodes = SP_pair, cpus_per_node = 1,
+                         add_objects = c("betXY","pi1","sig1","weights","m0","nX","nY","piU",
+                                         "iX","iY","param","bn","bins","parscale"),
+                         slurm_options = list(partition = partition),
+                         submit = TRUE)
+      #Keep a loop open till the job is completely done.
+      wait_counter = 0
+      while (wait_counter < 1) {
+        wait_counter = 0
+        if (tryCatch(str_detect(get_job_status(sjob),"completed"), warning = function(w){FALSE},
+                     error = function(e){FALSE})) {
+          wait_counter = wait_counter + 1
+        } else{
+          wait_counter = wait_counter
+        }
+      }
+
+      res_temp = get_slurm_out(sjob, outtype = 'table')
+      res_values = as.data.frame(do.call(rbind, res_temp[[1]]))
+      res_values %>%
+        mutate(h2X = abs(h2X),
+               h2Y = abs(h2Y),
+               tX = abs(tX)) -> res_values
+      res_values = cbind("SP"=c(1:nrow(res_values)),res_values,"iX"=iX,"iY"=iY)
+
+      write.csv(res_values, paste0("FullRes_",EXP,"-",OUT,".csv"), row.names = FALSE) ## Will be used to read new sp_mat
+
+      cleanup_files(sjob)
+
+      ## running blockJK
+      res_ordered = res_values[order(res_values$mLL, decreasing = F),]
+      sp_mat2 = select(res_ordered,piX,piY,h2X,h2Y,tX,tY,alp,bet,iXY)
+      sp_mat2 = sp_mat2[1,]
+
+      par.df2 = data.frame(par=I(apply(sp_mat2,1,as.list))) #generate a dataframe of lists for each row of parameters - input for rslurm
+      par.df2 = merge(par.df2,JK_index)
+
+      sjob2 = slurm_apply(f = slurm_blockJK_singleStep_likelihood, params = par.df2, jobname = paste0(EXP,"-",OUT,"_blockJK"), nodes = nrow(par.df2), cpus_per_node = 1,
+                          add_objects = c("betXY","pi1","sig1","weights","m0","nX","nY","pi_U",
+                                          "i_X","i_Y","param","bn","bins","parscale"),
+                          slurm_options = list(partition = partition),
+                          submit = TRUE)
+      #Keep a loop open till the job is completely done.
+      wait_counter = 0
+      while (wait_counter < 1) {
+        wait_counter = 0
+        if (tryCatch(str_detect(get_job_status(sjob2),"completed"), warning = function(w){FALSE},
+                     error = function(e){FALSE})) {
+          wait_counter = wait_counter + 1
+        } else{
+          wait_counter = wait_counter
+        }
+      }
+
+      res_temp2 = get_slurm_out(sjob2, outtype = 'table')
+      res_values2 = as.data.frame(do.call(rbind, res_temp2[[1]]))
+      res_values2 %>%
+        mutate(piX = abs(piX),
+               piY = abs(piY),
+               h2X = abs(h2X),
+               h2Y = abs(h2Y),
+               tX = abs(tX)) -> res_values2
+
+      write.csv(res_values2, paste0("FullRes_",EXP,"-",OUT,"_blockJK.csv"), row.names = FALSE)
+
+    }
+
+    if(paral_method=="lapply"){
+      test.res <- lapply(par.df[[1]], function(x) {
+        theta = unlist(x)
+        test1 = optim(theta, pairTrait_singleStep_likelihood,
+                      betX=bX, pi1=pi1, sig1=sig1, weights=weights,
+                      m0=m0, nX=nX, pi_U=piU, bn=2^7, bins=10,
+                      method = "Nelder-Mead",
+                      control = list(maxit = 5e3))
+
+        list("mLL"=test1$value,"par"=test1$par,"conv"=test1$convergence)
+      })
+
+      test.res = as.data.frame(t(matrix(unlist(test.res), nrow=length(unlist(test.res[1])))))
+      colnames(test.res)=c("mLL","piX","piY","h2X","h2Y","tX","tY","alp","bet","iXY","conv")
+
+      test.res %>%
+        mutate(
+          piX = abs(piX),
+          piY = abs(piY),
+          h2X = abs(h2X),
+          h2Y = abs(h2Y),
+          tX = abs(tX)) -> res_values
+
+      res_values = cbind("SP"=c(1:nrow(res_values)),res_values,"iX"=iX,"iY"=iY)
+      write.csv(res_values, paste0("FullRes_",EXP,"-",OUT,".csv"), row.names = FALSE)
+
+      ## running blockJK
+      res_ordered = res_values[order(res_values$mLL, decreasing = F),]
+      sp_mat2 = select(res_ordered,piX,piY,h2X,h2Y,tX,tY,alp,bet,iXY)
+      sp_mat2 = sp_mat2[1,]
+
+      par.df2 = data.frame(par=I(apply(sp_mat2,1,as.list))) #generate a dataframe of lists for each row of parameters - input for rslurm
+      par.df2 = merge(par.df2,JK_index)
+
+      test.res1 <- lapply(split(par.df2,1:nrow(par.df2)), function(x) {
+        theta = unlist(x[1])
+        start_ind = x[2]
+        end_ind = x[3]
+        test1 = optim(theta, pairTrait_singleStep_likelihood,
+                      betXY=betXY[-(start_ind:end_ind),], pi1=pi1[-(start_ind:end_ind)], sig1=sig1[-(start_ind:end_ind)],
+                      weights=weights[-(start_ind:end_ind)], pi_U=pi_U,
+                      i_X=i_X, i_Y=i_Y,
+                      m0=m0, nX=nX, nY=nY, bn=bn, bins=bins, model=param,
+                      method = "Nelder-Mead",
+                      control = list(maxit = 5e3,
+                                     parscale = parscale))
+
+        list("mLL"=test1$value,"par"=test1$par,"conv"=test1$convergence)
+      })
+
+      test.res1 = as.data.frame(t(matrix(unlist(test.res1), nrow=length(unlist(test.res1[1])))))
+      colnames(test.res1)=c("mLL","piX","piY","h2X","h2Y","tX","tY","alp","bet","iXY","conv")
+
+      test.res1 %>%
+        mutate(piX = abs(piX),
+               piY = abs(piY),
+               h2X = abs(h2X),
+               h2Y = abs(h2Y),
+               tX = abs(tX)) -> res_values2
+
+      write.csv(res_values2, paste0("FullRes_",EXP,"-",OUT,"_blockJK.csv"), row.names = FALSE)
+
+    }
+
+  }
+
+### blockJK analysis regardless of method??? one step or two step
+  res_min2 = res_values2 %>%
+    group_by(start_ind) %>%
+    slice(which.min(mLL)) %>%
+    ungroup()
+
+  write.csv(res_min2, "MinRes_JK.csv", row.names = FALSE) ## same as above with 1SP
+
+  res_minFil = dplyr::select(as.data.frame(res_min2), -c(mLL,conv,start_ind,end_ind))
+  JK_res = as.data.frame(matrix(data=NA, nrow=ncol(res_minFil),ncol=18))
+  colnames(JK_res)=c("Parameter","mean","median","se","se_JK","se_JK_10","var","loglik_1comp","AIC_1comp","convergance_2comp","mu1","mu2","sigma1","sigma2","lambda1","lambda2","loglik_2comp","AIC_2comp")
+  JK_res$Parameter=colnames(res_minFil)
+  JK_res$mean = colMeans(res_minFil)
+  JK_res$median = apply(res_minFil, 2, median)
+  JK_res$se = apply(res_minFil, 2, sd)
+  JK_res$se_JK = (apply(res_minFil, 2, sd))*sqrt(nBlock-1)#*sqrt(10)
+  JK_res$se_JK_10 = (apply(res_minFil, 2, sd))*sqrt(nBlock-1)*sqrt(10)
+  JK_res$var = apply(res_minFil, 2, var)
+
+  for (x in c(1:ncol(res_minFil))){
+    param = res_minFil[,x]
+    print(colnames(res_minFil)[x])
+    Xf1 = MASS::fitdistr(param, "normal")
+    Xf2 = tryCatch({capture.output(mixtools::normalmixEM(param, k=2, maxit=1e8))}, warning = function(warning_condition) {
+      return(NA)
+    }, error = function(error_condition) {
+      print("Error")
+      return(NA)
+    })
+    AIC1 = 2*2 - 2*(Xf1$loglik)
+    AIC2 = 2*4 - 2*(as.numeric(str_split(str_squish(Xf2[str_which(Xf2, "loglik")[1]+1]), " " )[[1]][2]))
+    JK_res$loglik_1comp[x] = Xf1$loglik
+    JK_res$loglik_2comp[x] = as.numeric(str_split(str_squish(Xf2[str_which(Xf2, "loglik")[1]+1]), " " )[[1]][2])
+    JK_res$AIC_1comp[x] = AIC1
+    JK_res$AIC_2comp[x] = AIC2
+
+
+    if(!is.na(Xf2)){
+      print(colnames(res_minFil)[x])
+      JK_res$convergance_2comp[x] = !any(str_detect(Xf2, "WARNING! NOT CONVERGENT!"))
+      JK_res[x,11:12] = as.numeric(str_split(str_squish(Xf2[str_which(Xf2, "mu")+1]), " " )[[1]][2:3])
+      JK_res[x,13:14] = (as.numeric(str_split(str_squish(Xf2[str_which(Xf2, "sigma")+1]), " " )[[1]][2:3]))
+      JK_res[x,15:16] = as.numeric(str_split(str_squish(Xf2[str_which(Xf2, "lambda")+1]), " " )[[1]][2:3])
+    }
+  }
+
+  tstat = (JK_res$mu1 - JK_res$mu2) / sqrt(JK_res$sigma1^2 + JK_res$sigma2^2)
+  t.pval = 2*pnorm(-abs(tstat))
+
+  JK_res$tstat = tstat
+  JK_res$tstat_pval = t.pval
+  JK_res$sigma1_JK = JK_res$sigma1*sqrt(nBlock-1)
+  JK_res$sigma2_JK = JK_res$sigma2*sqrt(nBlock-1)
+  JK_res$sigma1_JK_10 = JK_res$sigma1*sqrt(nBlock-1)*sqrt(10)
+  JK_res$sigma2_JK_10 = JK_res$sigma2*sqrt(nBlock-1)*sqrt(10)
+
+  JK_res$ci_lower_JK = JK_res$mean - (1.96*JK_res$se_JK)
+  JK_res$ci_upper_JK = JK_res$mean + (1.96*JK_res$se_JK)
+  JK_res$ci_lower_JK_10 = JK_res$mean - (1.96*JK_res$se_JK_10)
+  JK_res$ci_upper_JK_10 = JK_res$mean + (1.96*JK_res$se_JK_10)
+
+  bimo = which(JK_res$tstat_pval == 0)
+
+  JK_res$bimod = "FALSE"
+  JK_res$bimod[bimo] = "TRUE"
+
+  # for(x in bimo){
+  #   if(JK_res$lambda1[x]>JK_res$lambda2[x]){
+  #     JK_res$ci_lower[x] = JK_res$mu1[x] - (1.96*JK_res$sigma1_corr[x])
+  #     JK_res$ci_upper[x] = JK_res$mu1[x] + (1.96*JK_res$sigma1_corr[x])
+  #   }else{
+  #     JK_res$ci_lower[x] = JK_res$mu2[x] - (1.96*JK_res$sigma2_corr[x])
+  #     JK_res$ci_upper[x] = JK_res$mu2[x] + (1.96*JK_res$sigma2_corr[x])
+  #   }
+  #
+  # }
+
+  write.csv(JK_res,paste0("JKres_200_",EXP,"-",OUT,".csv"), row.names = F)
+
+  cov_matrix = cov(res_minFil)
+  write.csv(cov_matrix,paste0("VarCovMatrix_",EXP,"-",OUT,".csv"))
+  print("Done!")
+  sink()
+
+}
