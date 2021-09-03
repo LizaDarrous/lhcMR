@@ -1,6 +1,6 @@
 #' Title
 #'
-#' @param par
+#' @param par pp
 #' @param start_ind
 #' @param end_ind
 #'

@@ -1,6 +1,6 @@
 #' Title
 #'
-#' @param par
+#' @param par pp
 #' @param start_ind
 #' @param end_ind
 #'
@@ -8,7 +8,7 @@
 #' @export
 #'
 #' @examples
-slurm_blockJK_singleStep_lhc_likelihood = function(par,start_ind, end_ind){
+slurm_blockJK_singleStep_likelihood = function(par,start_ind, end_ind){
   theta=unlist(par)
 
   test = optim(theta, pairTrait_singleStep_likelihood,
