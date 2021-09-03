@@ -1,3 +1,13 @@
+#' Title
+#'
+#' @param par
+#' @param start_ind
+#' @param end_ind
+#'
+#' @return
+#' @export
+#'
+#' @examples
 slurm_blockJK_twoStep_likelihood = function(par,start_ind, end_ind){
   theta=unlist(par)
 

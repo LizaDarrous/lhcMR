@@ -1,3 +1,11 @@
+#' Title
+#'
+#' @param par
+#'
+#' @return
+#' @export
+#'
+#' @examples
 slurm_singleTrait_likelihood = function(par){
   theta=unlist(par)
   test = optim(theta, singleTrait_likelihood,

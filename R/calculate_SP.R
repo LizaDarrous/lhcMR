@@ -120,8 +120,8 @@ calculate_SP <- function(input.df,trait.names,log.file=NA,run_ldsc=TRUE,run_MR=T
   }
 
   if(run_SingleStep==TRUE){
-    sp_piX = runif(SP_pair,-1e-4,1e-4) #rep(pi_X,SP_pair)
-    sp_piY = runif(SP_pair,-1e-4,1e-4) #rep(pi_Y,SP_pair)
+    sp_piX = runif(SP_pair,0,1e-4) #rep(pi_X,SP_pair)
+    sp_piY = runif(SP_pair,0,1e-4) #rep(pi_Y,SP_pair)
     sp_tX = runif(SP_pair,0,0.5)
     sp_tY = runif(SP_pair,-0.5,0.5)
     sp_h2X = h2_x-(sp_tX^2)

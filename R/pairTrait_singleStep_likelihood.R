@@ -1,3 +1,25 @@
+#' Title
+#'
+#' @param theta
+#' @param betXY
+#' @param pi1
+#' @param sig1
+#' @param weights
+#' @param m0
+#' @param pi_U
+#' @param i_X
+#' @param i_Y
+#' @param nX
+#' @param nY
+#' @param model
+#' @param bn
+#' @param bins
+#' @param M
+#'
+#' @return
+#' @export
+#'
+#' @examples
 pairTrait_singleStep_likelihood <- function(theta,betXY,pi1,sig1,weights,m0,pi_U=0.1,i_X,i_Y,nX,nY,model="comp",bn=2^8,bins=15,M=1e7){
 
   M = M #1e7
