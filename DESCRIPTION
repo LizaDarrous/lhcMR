@@ -18,6 +18,7 @@ Imports:
     dplyr,
     GenomicSEM,
     magrittr,
+    rslurm,
     stats,
     TwoSampleMR
 URL: https://github.com/LizaDarrous/lhcMR

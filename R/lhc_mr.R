@@ -17,6 +17,8 @@
 #' @return
 #' @export
 #'
+#' @importFrom rslurm slurm_apply
+#'
 #' @examples
 lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP_pair=100,partition=NA,run_SingleStep=FALSE,
                   run_TwoStep=TRUE,paral_method="rslurm",nBlock=200){
