@@ -16,6 +16,8 @@
 
 gettingSP_ldscMR = function(input.df,trait.names,log.file,run_ldsc=TRUE,run_MR=TRUE,hm3,ld){
 
+  cat(hm3)
+
   EXP = trait.names[1]
   OUT = trait.names[2]
   nX = mean(input.df$N.x)  #Get sample size for trait X
@@ -93,7 +95,7 @@ gettingSP_ldscMR = function(input.df,trait.names,log.file,run_ldsc=TRUE,run_MR=T
 
     ## Taken from Jonathan Sulc to create bins that fit a maximum of 50k SNPs (max threshold for clumping)
     snp_bin  =  function( snp_ranks,
-                          chunk_size = SNP_CHUNK_SIZE ){
+                          chunk_size = 50000 ){
       if (nrow( snp_ranks ) == 0) {
         return()
       }
@@ -109,7 +111,7 @@ gettingSP_ldscMR = function(input.df,trait.names,log.file,run_ldsc=TRUE,run_MR=T
       }
 
       bin = snp_ranks %>%
-        filter( chr <= max_chr ) %>%
+        dplyr::filter( chr <= max_chr ) %>%
         list
       return( c( bin,
                  snp_bin( snp_ranks[ snp_ranks$chr > max_chr, ],
@@ -199,11 +201,15 @@ gettingSP_ldscMR = function(input.df,trait.names,log.file,run_ldsc=TRUE,run_MR=T
       res1 <- TwoSampleMR::mr(dat)
     }
 
-    alp_MR = res1[which(res1$method=="Inverse variance weighted"),'b']
-    write.table(as.data.frame(res1), file=file_output, sep = ",", append = TRUE, row.names = FALSE)
-    write.table(as.data.frame(het), file=file_output, sep = ",", append = TRUE, row.names = FALSE)
-    write.table(as.data.frame(plei), file=file_output, sep = ",", append = TRUE, row.names = FALSE)
-    write.table("*", file_output, sep = ",", quote = FALSE, col.names = FALSE, row.names = FALSE, append = TRUE)
+    if(nrow(res1)<2){
+      alp_MR = res1[,'b']
+    }else{
+      alp_MR = res1[which(res1$method=="Inverse variance weighted"),'b']
+    }
+    write.table(as.data.frame(res1), file=MR_output, sep = ",", append = TRUE, row.names = FALSE)
+    write.table(as.data.frame(het), file=MR_output, sep = ",", append = TRUE, row.names = FALSE)
+    write.table(as.data.frame(plei), file=MR_output, sep = ",", append = TRUE, row.names = FALSE)
+    write.table("*", MR_output, sep = ",", quote = FALSE, col.names = FALSE, row.names = FALSE, append = TRUE)
 
     ## reverse MR
     rm(mr_dataX,mr_dataY,exp_dat,exp_data,exp_dat2,out_dat,out_dat2,dups,ind_keep,mr_ind,clump_bin, action, temp, temp1,dat,het,plei,smaller)
@@ -287,10 +293,15 @@ gettingSP_ldscMR = function(input.df,trait.names,log.file,run_ldsc=TRUE,run_MR=T
       res2 <- TwoSampleMR::mr(dat)
     }
 
-    bet_MR = res2[which(res2$method=="Inverse variance weighted"),'b']
-    write.table(as.data.frame(res2), file=file_output, sep = ",", append = TRUE, row.names = FALSE)
-    write.table(as.data.frame(het), file=file_output, sep = ",", append = TRUE, row.names = FALSE)
-    write.table(as.data.frame(plei), file=file_output, sep = ",", append = TRUE, row.names = FALSE)
+    if(nrow(res2)<2){
+      bet_MR = res2[,'b']
+    }else{
+      bet_MR = res2[which(res2$method=="Inverse variance weighted"),'b']
+    }
+
+    write.table(as.data.frame(res2), file=MR_output, sep = ",", append = TRUE, row.names = FALSE)
+    write.table(as.data.frame(het), file=MR_output, sep = ",", append = TRUE, row.names = FALSE)
+    write.table(as.data.frame(plei), file=MR_output, sep = ",", append = TRUE, row.names = FALSE)
 
   } else{alp_MR = runif(1,-0.5,0.5);bet_MR = runif(1,-0.5,0.5);}
 

@@ -1,8 +1,8 @@
-lhc_mr = function(input.df_filtered,trait.names,sp_mat,iX,iY,piX,piY,SP_pair=100,partition,run_SingleStep=FALSE,
+lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP_pair=100,partition=NA,run_SingleStep=FALSE,
                   run_TwoStep=TRUE,paral_method="rslurm",nBlock=200){
 
   # generate a dataframe of lists for each row of parameters - input for rslurm/lapply
-  par.df = data.frame(par=I(apply(sp_mat,1,as.list)))
+  par.df = data.frame(par=I(apply(SP_matrix,1,as.list)))
 
   # parameters set up
   piU=0.1
@@ -110,8 +110,9 @@ lhc_mr = function(input.df_filtered,trait.names,sp_mat,iX,iY,piX,piY,SP_pair=100
       test.res <- lapply(par.df[[1]], function(x) {
         theta = unlist(x)
         test = optim(theta, pairTrait_twoStep_likelihood,
-                      betX=bX, pi1=pi1, sig1=sig1, weights=weights,
-                      m0=m0, nX=nX, pi_U=piU, pi_X=piX, pi_Y=piY, bn=2^7, bins=10,
+                      betX=betXY, pi1=pi1, sig1=sig1, weights=weights,
+                      m0=m0, nX=nX, nY=nY, pi_U=piU, pi_X=piX, pi_Y=piY, i_X=iX, i_Y=iY,
+                      bn=2^7, bins=10,
                       method = "Nelder-Mead",
                       control = list(maxit = 5e3))
 
@@ -144,7 +145,7 @@ lhc_mr = function(input.df_filtered,trait.names,sp_mat,iX,iY,piX,piY,SP_pair=100
         test1 = optim(theta, pairTrait_twoStep_likelihood,
                      betXY=betXY[-(start_ind:end_ind),], pi1=pi1[-(start_ind:end_ind)], sig1=sig1[-(start_ind:end_ind)],
                      weights=weights[-(start_ind:end_ind)], pi_U=pi_U,
-                     pi_X=pi_X, pi_Y=pi_Y, i_X=i_X, i_Y=i_Y,
+                     pi_X=pi_X, pi_Y=pi_Y, i_X=iX, i_Y=iY,
                      m0=m0, nX=nX, nY=nY, bn=bn, bins=bins, model=param,
                      method = "Nelder-Mead",
                      control = list(maxit = 5e3,
@@ -242,8 +243,9 @@ lhc_mr = function(input.df_filtered,trait.names,sp_mat,iX,iY,piX,piY,SP_pair=100
       test.res <- lapply(par.df[[1]], function(x) {
         theta = unlist(x)
         test1 = optim(theta, pairTrait_singleStep_likelihood,
-                      betX=bX, pi1=pi1, sig1=sig1, weights=weights,
-                      m0=m0, nX=nX, pi_U=piU, bn=2^7, bins=10,
+                      betX=betXY, pi1=pi1, sig1=sig1, weights=weights,
+                      m0=m0, nX=nX, nY=nY, pi_U=piU, i_X=iX, i_Y=iY,
+                      bn=2^7, bins=10,
                       method = "Nelder-Mead",
                       control = list(maxit = 5e3))
 
@@ -278,8 +280,8 @@ lhc_mr = function(input.df_filtered,trait.names,sp_mat,iX,iY,piX,piY,SP_pair=100
         end_ind = x[3]
         test1 = optim(theta, pairTrait_singleStep_likelihood,
                       betXY=betXY[-(start_ind:end_ind),], pi1=pi1[-(start_ind:end_ind)], sig1=sig1[-(start_ind:end_ind)],
-                      weights=weights[-(start_ind:end_ind)], pi_U=pi_U,
-                      i_X=i_X, i_Y=i_Y,
+                      weights=weights[-(start_ind:end_ind)], pi_U=piU,
+                      i_X=iX, i_Y=iY,
                       m0=m0, nX=nX, nY=nY, bn=bn, bins=bins, model=param,
                       method = "Nelder-Mead",
                       control = list(maxit = 5e3,

@@ -23,21 +23,12 @@ merge_sumstats <- function(input.files,trait.names,LD.filepath,rho.filepath,mafT
   Xfile = input1[[1]][[1]]
   Yfile = input1[[1]][[2]]
 
-
   LD.file = fread(LD.filepath)
   rho.file = fread(rho.filepath)
 
   input2 = munge_LDfiles(list(LD.file,rho.file),c("LDfile","rhofile"),log.file)
   LDfile = input2[[1]][[1]]
   RHOfile = input2[[1]][[2]]
-
-  ## Extract SNPs high-quality SNPs, defined as being present in both UK10K and UK Biobank, having MAF>1 in both data sets,
-  #info>0.99 in the UK Biobank, non-significant (P_{diff}>0.05) allele frequency difference between UK Biobank and UK10K and
-  #residing outside the HLA region (chr6:28.5-33.5Mb)
-  #attach(LDfile)
-  selF = which(LDfile$INFO>infoT & abs(LDfile$MAFUK10K-LDfile$MAFUKBB)<(2*sqrt(1/4e3+1/360e3)) & LDfile$MAFUKBB>mafT
-               & LDfile$MAFUK10K>mafT & !(LDfile$CHR==6 & LDfile$POS>=28.5e6 & LDfile$POS<=33.5e6))
-  LDfile_fil = LDfile[selF,]
 
   # slightly change pre-processing code + order by chr/pos before slicing!
   Xfile %>% arrange(CHR, POS) -> X_data
@@ -72,7 +63,7 @@ merge_sumstats <- function(input.files,trait.names,LD.filepath,rho.filepath,mafT
 
   #colnames(LDfile)[3] = "RSID"
   LDfile$INFO = NULL # lots of SNPs have different info (UKBB vs UK10K?), needed otherwise only 207,914 SNPs left
-  Data = inner_join(Data, LDfile_fil) # based on rsid / chr / pos
+  Data = inner_join(Data, LDfile) # based on rsid / chr / pos
   nrow(Data)
   # 4,689,922
 

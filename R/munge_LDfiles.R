@@ -71,11 +71,11 @@ munge_LDfiles <- function(input.files,trait.names,log.file){
       }
       namesX = Xcols
 
-      # Print a message for missing LDSC or WEIGTH
+      # Print a message for missing LDSC or WEIGHT
       if(sum(Xcols %in% "LDSC") == 0) cat(print(paste0('Cannot find an \'LDSC\' column, try renaming it to LDSC in the file for:',trait.names[i])),file=log.file,sep="\n",append=TRUE)
       if(sum(Xcols %in% "WEIGHT") == 0) cat(print(paste0('Cannot find a \'weight\' column, try renaming it to WEIGHT in the file for:',trait.names[i])),file=log.file,sep="\n",append=TRUE)
 
-      # Throw warnings for missing LDSC or WEIGTH
+      # Throw warnings for missing LDSC or WEIGHT
       if(sum(Xcols %in% "LDSC") == 0) warning(paste0('Cannot find an \'LDSC\' column, try renaming it to LDSC in the file for:',trait.names[i]))
       if(sum(Xcols %in% "WEIGHT") == 0) warning(paste0('Cannot find a \'weight\' column, try renaming it to WEIGHT in the file for:',trait.names[i]))
 
@@ -93,18 +93,25 @@ munge_LDfiles <- function(input.files,trait.names,log.file){
       if("SIGK" %in% Xcols){cat(print(paste0("Interpreting the sigK column as the variance of the local-LD distribution column in ",trait.names[i],".")),file=log.file,sep="\n",append=TRUE)
       }
       namesX = Xcols
+      #local_m
+      if("LOCAL_M" %in% Xcols){cat(print(paste0("Interpreting the local_m column as the number of SNPs used to calculate the local-LD distribution column in ",trait.names[i],".")),file=log.file,sep="\n",append=TRUE)
+      }
+      namesX = Xcols
 
-      # Print a message for missing LDSC or WEIGTH
+      # Print a message for missing LDSC or WEIGHT or LOCAL_M
       if(sum(Xcols %in% "PIK") == 0) cat(print(paste0('Cannot find a \'piK\' column, try renaming it to piK in the file for:',trait.names[i])),file=log.file,sep="\n",append=TRUE)
       if(sum(Xcols %in% "SIGK") == 0) cat(print(paste0('Cannot find a \'sigK\' column, try renaming it to sigK in the file for:',trait.names[i])),file=log.file,sep="\n",append=TRUE)
+      if(sum(Xcols %in% "LOCAL_M") == 0) cat(print(paste0('Cannot find a \'local_m\' column, try renaming it to local_m in the file for:',trait.names[i])),file=log.file,sep="\n",append=TRUE)
 
-      # Throw warnings for missing LDSC or WEIGTH
+      # Throw warnings for missing LDSC or WEIGHT or LOCAL_M
       if(sum(Xcols %in% "PIK") == 0) warning(paste0('Cannot find an \'piK\' column, try renaming it to piK in the file for:',trait.names[i]))
       if(sum(Xcols %in% "SIGK") == 0) warning(paste0('Cannot find a \'sigK\' column, try renaming it to sigK in the file for:',trait.names[i]))
+      if(sum(Xcols %in% "LOCAL_M") == 0) warning(paste0('Cannot find a \'local_m\' column, try renaming it to local_m in the file for:',trait.names[i]))
 
-      # Print a warning message when multiple columns are interpreted as LDSC or WEIGHT
+      # Print a warning message when multiple columns are interpreted as LDSC or WEIGHT or LOCAL_M
       if(sum(Xcols %in% "PIK") > 1) cat(print(paste0('Multiple columns are being interpreted as the piK column. Try renaming the column you dont want interpreted as the piK to piK2 for:',trait.names[i])),file=log.file,sep="\n",append=TRUE)
       if(sum(Xcols %in% "SIGK") > 1) cat(print(paste0('Multiple columns are being interpreted as the sigK column. Try renaming the column you dont want interpreted as the sigK column to sigK2 for:',trait.names[i])),file=log.file,sep="\n",append=TRUE)
+      if(sum(Xcols %in% "LOCAL_M") > 1) cat(print(paste0('Multiple columns are being interpreted as the local_m column. Try renaming the column you dont want interpreted as the local_m column to local_m2 for:',trait.names[i])),file=log.file,sep="\n",append=TRUE)
     }
 
     # Replace the original column names

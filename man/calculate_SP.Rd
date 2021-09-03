@@ -7,16 +7,15 @@
 calculate_SP(
   input.df,
   trait.names,
-  log.file,
+  log.file = NA,
   run_ldsc = TRUE,
   run_MR = TRUE,
   hm3,
   ld,
   run_SingleStep = FALSE,
   run_TwoStep = TRUE,
-  SP_single = 50,
+  SP_single = 30,
   SP_pair = 100,
-  partition,
   SNP_filter = 10
 )
 }
