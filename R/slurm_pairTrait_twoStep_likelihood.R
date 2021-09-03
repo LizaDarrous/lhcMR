@@ -1,3 +1,11 @@
+#' Title
+#'
+#' @param par
+#'
+#' @return
+#' @export
+#'
+#' @examples
 slurm_pairTrait_twoStep_likelihood = function(par){
   theta=unlist(par)
 
