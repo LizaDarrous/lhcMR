@@ -101,8 +101,8 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
       par.df2 = merge(par.df2,JK_index)
 
       sjob2 = slurm_apply(f = slurm_blockJK_twoStep_likelihood, params = par.df2, jobname = paste0(EXP,"-",OUT,"_blockJK"), nodes = nrow(par.df2), cpus_per_node = 1,
-                         add_objects = c("betXY","pi1","sig1","weights","m0","nX","nY","pi_U","pi_X","pi_Y",
-                                         "i_X","i_Y","param","bn","bins","parscale"),
+                         add_objects = c("betXY","pi1","sig1","weights","m0","nX","nY","piU","piX","piY",
+                                         "iX","iY","param","bn","bins","parscale"),
                          slurm_options = list(partition = partition),
                          submit = TRUE)
       #Keep a loop open till the job is completely done.
@@ -232,7 +232,7 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
       par.df2 = merge(par.df2,JK_index)
 
       sjob2 = slurm_apply(f = slurm_blockJK_singleStep_likelihood, params = par.df2, jobname = paste0(EXP,"-",OUT,"_blockJK"), nodes = nrow(par.df2), cpus_per_node = 1,
-                          add_objects = c("betXY","pi1","sig1","weights","m0","nX","nY","pi_U",
+                          add_objects = c("betXY","pi1","sig1","weights","m0","nX","nY","piU",
                                           "i_X","i_Y","param","bn","bins","parscale"),
                           slurm_options = list(partition = partition),
                           submit = TRUE)

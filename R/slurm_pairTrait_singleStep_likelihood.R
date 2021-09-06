@@ -10,8 +10,8 @@ slurm_pairTrait_singleStep_likelihood = function(par){
   theta=unlist(par)
 
   test = optim(theta, pairTrait_singleStep_likelihood,
-               betXY=betXY, pi1=pi1, sig1=sig1, weights=weights, pi_U=pi_U,
-               i_X=i_X, i_Y=i_Y,
+               betXY=betXY, pi1=pi1, sig1=sig1, weights=weights, pi_U=piU,
+               i_X=iX, i_Y=iY,
                m0=m0, nX=nX, nY=nY, bn=bn, bins=bins, model=param,
                method = "Nelder-Mead",
                control = list(maxit = 5e3,
