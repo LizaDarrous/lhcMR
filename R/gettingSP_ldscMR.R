@@ -202,9 +202,9 @@ gettingSP_ldscMR = function(input.df,trait.names,log.file,run_ldsc=TRUE,run_MR=T
     }
 
     if(nrow(res1)<2){
-      alp_MR = res1[,'b']
+      axy_MR = res1[,'b']
     }else{
-      alp_MR = res1[which(res1$method=="Inverse variance weighted"),'b']
+      axy_MR = res1[which(res1$method=="Inverse variance weighted"),'b']
     }
     write.table(as.data.frame(res1), file=MR_output, sep = ",", append = TRUE, row.names = FALSE)
     write.table(as.data.frame(het), file=MR_output, sep = ",", append = TRUE, row.names = FALSE)
@@ -294,17 +294,17 @@ gettingSP_ldscMR = function(input.df,trait.names,log.file,run_ldsc=TRUE,run_MR=T
     }
 
     if(nrow(res2)<2){
-      bet_MR = res2[,'b']
+      ayx_MR = res2[,'b']
     }else{
-      bet_MR = res2[which(res2$method=="Inverse variance weighted"),'b']
+      ayx_MR = res2[which(res2$method=="Inverse variance weighted"),'b']
     }
 
     write.table(as.data.frame(res2), file=MR_output, sep = ",", append = TRUE, row.names = FALSE)
     write.table(as.data.frame(het), file=MR_output, sep = ",", append = TRUE, row.names = FALSE)
     write.table(as.data.frame(plei), file=MR_output, sep = ",", append = TRUE, row.names = FALSE)
 
-  } else{alp_MR = runif(1,-0.5,0.5);bet_MR = runif(1,-0.5,0.5);}
+  } else{axy_MR = runif(1,-0.5,0.5);ayx_MR = runif(1,-0.5,0.5);}
 
-  return(list(i_XY, alp_MR, bet_MR))
+  return(list(i_XY, axy_MR, ayx_MR))
 
 }

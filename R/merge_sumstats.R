@@ -23,6 +23,7 @@ merge_sumstats <- function(input.files,trait.names,LD.filepath,rho.filepath,mafT
   Xfile = input1[[1]][[1]]
   Yfile = input1[[1]][[2]]
 
+  # Obtain the correct column names for the LD files
   LD.file = fread(LD.filepath)
   rho.file = fread(rho.filepath)
 
@@ -30,7 +31,32 @@ merge_sumstats <- function(input.files,trait.names,LD.filepath,rho.filepath,mafT
   LDfile = input2[[1]][[1]]
   RHOfile = input2[[1]][[2]]
 
-  # slightly change pre-processing code + order by chr/pos before slicing!
+  # remove the HLA region due to highly associated SNPs
+  LDfile_ind = which(!(LDfile$CHR==6 & LDfile$POS>=28.5e6 & LDfile$POS<=33.5e6))
+  LDfile = LDfile[LDfile_ind]
+
+  # slightly change pre-processing code + order by chr/pos before slicing. Also filter for MAF/info if column is present
+  if("MAF" %in% colnames(Xfile)){
+    #colnames(Xfile)[colnames(Xfile) %in% c("HG18CHR","CHR", "CHROM", "CHROMOSOME")] <- "MAF"
+    Xfile_ind = which(Xfile$MAF>mafT)
+    Xfile = Xfile[Xfile_ind]
+  }
+  if("MAF" %in% colnames(Yfile)){
+    #colnames(Xfile)[colnames(Xfile) %in% c("HG18CHR","CHR", "CHROM", "CHROMOSOME")] <- "MAF"
+    Yfile_ind = which(Yfile$MAF>mafT)
+    Yfile = Yfile[Yfile_ind]
+  }
+  if("INFO" %in% colnames(Xfile)){
+    #colnames(Xfile)[colnames(Xfile) %in% c("HG18CHR","CHR", "CHROM", "CHROMOSOME")] <- "MAF"
+    Xfile_ind = which(Xfile$INFO>infoT)
+    Xfile = Xfile[Xfile_ind]
+  }
+  if("INFO" %in% colnames(Yfile)){
+    #colnames(Xfile)[colnames(Xfile) %in% c("HG18CHR","CHR", "CHROM", "CHROMOSOME")] <- "MAF"
+    Yfile_ind = which(Yfile$INFO>infoT)
+    Yfile = Yfile[Yfile_ind]
+  }
+
   Xfile %>% arrange(CHR, POS) -> X_data
   Yfile %>% arrange(CHR, POS) -> Y_data
   Data = inner_join(X_data, Y_data,

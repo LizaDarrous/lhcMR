@@ -3,14 +3,14 @@
 #' @param par
 #'
 #' @return
-#' @export
+# @export
 #'
 #' @examples
 slurm_singleTrait_likelihood = function(par){
   theta=unlist(par)
   test = optim(theta, singleTrait_likelihood,
                betX=betX, pi1=pi1, sig1=sig1, weights=weights,
-               m0=m0, nX=nX, bn=2^7, bins=10,
+               m0=m0, M=M, nX=nX, bn=2^7, bins=10,
                method = "Nelder-Mead",
                control = list(maxit = 5e3))
 

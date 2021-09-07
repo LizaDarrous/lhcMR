@@ -21,7 +21,7 @@
 #' @importFrom stats fft sd
 #'
 #' @return
-#' @export
+# @export
 #'
 #' @examples
 pairTrait_twoStep_likelihood <- function(theta,betXY,pi1,sig1,weights,m0,pi_U=0.1,pi_X,pi_Y,i_X,i_Y,nX,nY,model="comp",bn=2^8,bins=15,M=1e7){
@@ -38,48 +38,48 @@ pairTrait_twoStep_likelihood <- function(theta,betXY,pi1,sig1,weights,m0,pi_U=0.
   if(model=="comp"){
     tX = abs(theta[3]);
     tY = theta[4];
-    alp = theta[5];
-    bet = theta[6];
+    axy = theta[5];
+    ayx = theta[6];
     iXY = theta[7];
   }
 
-  if(model=="alp"){
+  if(model=="axy"){
     tX = abs(theta[3]);
     tY = theta[4];
-    alp = 0;
-    bet = theta[5];
+    axy = 0;
+    ayx = theta[5];
     iXY = theta[6];
   }
 
-  if(model=="bet"){
+  if(model=="ayx"){
     tX = abs(theta[3]);
     tY = theta[4];
-    alp = theta[5];
-    bet = 0;
+    axy = theta[5];
+    ayx = 0;
     iXY = theta[6];
   }
 
   if(model=="tX"){
     tX = 0;
     tY = theta[3];
-    alp = theta[4];
-    bet = theta[5];
+    axy = theta[4];
+    ayx = theta[5];
     iXY = theta[6];
   }
 
   if(model=="tY"){
     tX = abs(theta[3]);
     tY = 0;
-    alp = theta[4];
-    bet = theta[5];
+    axy = theta[4];
+    ayx = theta[5];
     iXY = theta[6];
   }
 
   if(model=="U"){
     tX = 0;
     tY = 0;
-    alp = theta[3];
-    bet = theta[4];
+    axy = theta[3];
+    ayx = theta[4];
     iXY = theta[5];
   }
 
@@ -116,7 +116,7 @@ pairTrait_twoStep_likelihood <- function(theta,betXY,pi1,sig1,weights,m0,pi_U=0.
   bYi[bYi>bn] = bn;
 
   if(max(c(piX,piU,piY)) > 0.2 || min(c(piX,piU,piY)) < 1e-6 || max(c((h2X+tX^2),(h2Y+tY^2)))>1
-     || min(c((h2X+tX^2),(h2Y+tY^2))) < 1e-6|| abs(alp)>=1 || abs(bet)>=1 || min(c(iX,iY))<=0.5
+     || min(c((h2X+tX^2),(h2Y+tY^2))) < 1e-6|| abs(axy)>=1 || abs(ayx)>=1 || min(c(iX,iY))<=0.5
      || max(c(iX,iY))>=1.5 || abs(iXY)>1){
     logL = 1e10
     nmiss = 0
@@ -148,9 +148,9 @@ pairTrait_twoStep_likelihood <- function(theta,betXY,pi1,sig1,weights,m0,pi_U=0.
     Rx = array(rep(vi, bn*mm), dim = c(bn, bn, mm))
     Ry = aperm( array(rep(wj, bn*mm), dim = c(bn, bn, mm)),c(2,1,3))
 
-    coX = (Rx+alp*Ry)*sigK;
-    coY = (Ry+bet*Rx)*sigK;
-    coU = sigU * ((tX+bet*tY)*Rx + (tY+alp*tX)*Ry) * sigK;
+    coX = (Rx+axy*Ry)*sigK;
+    coY = (Ry+ayx*Rx)*sigK;
+    coU = sigU * ((tX+ayx*tY)*Rx + (tY+axy*tX)*Ry) * sigK;
 
     Lx = -m0*piX*( 1 - 1/sqrt(1+sigX^2*coX^2) )*piK;
     Ly = -m0*piY*( 1 - 1/sqrt(1+sigY^2*coY^2) )*piK;

@@ -17,7 +17,8 @@ lhc_mr(
   run_SingleStep = FALSE,
   run_TwoStep = TRUE,
   paral_method = "rslurm",
-  nBlock = 200
+  nBlock = 200,
+  M = 1e+07
 )
 }
 \arguments{

@@ -24,8 +24,8 @@ calculate_SP <- function(input.df,trait.names,log.file=NA,run_ldsc=TRUE,run_MR=T
   ## get estimates of starting points from LDSC and standard MR method (IVW)
   SP = gettingSP_ldscMR(input.df,trait.names,log.file,run_ldsc,run_MR,hm3,ld)
   i_XY = as.numeric(SP[[1]])
-  alp_MR = as.numeric(SP[[2]])
-  bet_MR = as.numeric(SP[[3]])
+  axy_MR = as.numeric(SP[[2]])
+  ayx_MR = as.numeric(SP[[3]])
 
   ## for LHC single step analysis we reduce the number of SNPs for faster computation
   input.df %>%
@@ -106,14 +106,14 @@ calculate_SP <- function(input.df,trait.names,log.file=NA,run_ldsc=TRUE,run_MR=T
     sp_tY = runif(SP_pair,-0.5,0.5)
     sp_h2X = h2_x-(sp_tX^2)
     sp_h2Y = h2_y-(sp_tY^2)
-    sp_alp = replicate(SP_pair, (alp_MR+runif(1,-0.1,0.1)))
-    sp_bet = replicate(SP_pair, (bet_MR+runif(1,-0.1,0.1)))
+    sp_axy = replicate(SP_pair, (axy_MR+runif(1,-0.1,0.1)))
+    sp_ayx = replicate(SP_pair, (ayx_MR+runif(1,-0.1,0.1)))
     sp_iXY = rep(i_XY,SP_pair)
 
-    para=cbind(sp_h2X,sp_h2Y,sp_tX,sp_tY,sp_alp,sp_bet,sp_iXY)
+    para=cbind(sp_h2X,sp_h2Y,sp_tX,sp_tY,sp_axy,sp_ayx,sp_iXY)
     print(dim(para))
     sp_mat1=matrix(unlist(para), ncol=7, byrow = FALSE)
-    colnames(sp_mat1)=c("sp_h2X","sp_h2Y","sp_tX","sp_tY","sp_alp","sp_bet","sp_iXY")
+    colnames(sp_mat1)=c("sp_h2X","sp_h2Y","sp_tX","sp_tY","sp_axy","sp_ayx","sp_iXY")
     #sp_mat1 = cbind("SP"=c(1:nrow(sp_mat1)),sp_mat1)
     write.csv(sp_mat1,"StartingPoints.csv", row.names=F)
     return(list("iX"=i_X,"iY"=i_Y,"piX"=pi_X,"piY"=pi_Y,"input.df_filtered"=input.df_filtered,"sp_mat"=sp_mat1))
@@ -126,13 +126,13 @@ calculate_SP <- function(input.df,trait.names,log.file=NA,run_ldsc=TRUE,run_MR=T
     sp_tY = runif(SP_pair,-0.5,0.5)
     sp_h2X = h2_x-(sp_tX^2)
     sp_h2Y = h2_y-(sp_tY^2)
-    sp_alp = replicate(SP_pair, (alp_MR+runif(1,-0.1,0.1)))
-    sp_bet = replicate(SP_pair, (bet_MR+runif(1,-0.1,0.1)))
+    sp_axy = replicate(SP_pair, (axy_MR+runif(1,-0.1,0.1)))
+    sp_ayx = replicate(SP_pair, (ayx_MR+runif(1,-0.1,0.1)))
     sp_iXY = rep(i_XY,SP_pair)
 
-    para=cbind(sp_piX,sp_piY,sp_h2X,sp_h2Y,sp_tX,sp_tY,sp_alp,sp_bet,sp_iXY)
+    para=cbind(sp_piX,sp_piY,sp_h2X,sp_h2Y,sp_tX,sp_tY,sp_axy,sp_ayx,sp_iXY)
     sp_mat1=matrix(unlist(para), ncol=9, byrow = FALSE)
-    colnames(sp_mat1)=c("sp_piX","sp_piY","sp_h2X","sp_h2Y","sp_tX","sp_tY","sp_alp","sp_bet","sp_iXY")
+    colnames(sp_mat1)=c("sp_piX","sp_piY","sp_h2X","sp_h2Y","sp_tX","sp_tY","sp_axy","sp_ayx","sp_iXY")
     write.csv(sp_mat1,"StartingPoints.csv", row.names=F) #SP_pair
     return(list("iX"=i_X,"iY"=i_Y,"input.df_filtered"=input.df_filtered,"sp_mat"=sp_mat1))
 

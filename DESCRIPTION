@@ -18,8 +18,11 @@ Imports:
     dplyr,
     GenomicSEM,
     magrittr,
+    MASS,
+    mixtools,
     rslurm,
     stats,
+    stringr,
     TwoSampleMR
 URL: https://github.com/LizaDarrous/lhcMR
 BugReports: https://github.com/LizaDarrous/lhcMR/issues

@@ -5,7 +5,7 @@
 #' @param end_ind
 #'
 #' @return
-#' @export
+# @export
 #'
 #' @examples
 slurm_blockJK_twoStep_likelihood = function(par,start_ind, end_ind){
@@ -15,13 +15,13 @@ slurm_blockJK_twoStep_likelihood = function(par,start_ind, end_ind){
                betXY=betXY[-(start_ind:end_ind),], pi1=pi1[-(start_ind:end_ind)], sig1=sig1[-(start_ind:end_ind)],
                weights=weights[-(start_ind:end_ind)], pi_U=piU,
                pi_X=pi_X, pi_Y=pi_Y, i_X=iX, i_Y=iY,
-               m0=m0, nX=nX, nY=nY, bn=bn, bins=bins, model=param,
+               m0=m0, M=M, nX=nX, nY=nY, bn=bn, bins=bins, model=param,
                method = "Nelder-Mead",
                control = list(maxit = 5e3,
                               parscale = parscale))
 
   test.res=c(test$value,test$par,test$convergence,start_ind, end_ind)
-  cnames_res = c("mLL","h2X","h2Y","tX","tY","alp","bet","iXY","conv","start_ind", "end_ind")
+  cnames_res = c("mLL","h2X","h2Y","tX","tY","axy","ayx","iXY","conv","start_ind", "end_ind")
 
   if(param=="comp"){
     names(test.res)=cnames_res
