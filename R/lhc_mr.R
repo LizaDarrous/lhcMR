@@ -94,7 +94,7 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
         wait_counter = 0
         #if (tryCatch(stringr::str_detect(lhcMR::get_job_status(sjob2),"completed"), warning = function(w){FALSE},
         #             error = function(e){FALSE})) {
-        if(get_job_status(sjob2)$completed){
+        if(get_job_status(sjob)$completed){
           wait_counter = wait_counter + 1
         } else{
           wait_counter = wait_counter
@@ -239,7 +239,7 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
         wait_counter = 0
         #if (tryCatch(stringr::str_detect(lhcMR::get_job_status(sjob2),"completed"), warning = function(w){FALSE},
         #             error = function(e){FALSE})) {
-        if(get_job_status(sjob2)$completed){
+        if(get_job_status(sjob)$completed){
           wait_counter = wait_counter + 1
         } else{
           wait_counter = wait_counter
