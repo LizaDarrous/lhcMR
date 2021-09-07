@@ -18,7 +18,7 @@ slurm_blockJK_twoStep_likelihood = function(par,start_ind, end_ind){
                m0=m0, M=M, nX=nX, nY=nY, bn=bn, bins=bins, model=param,
                method = "Nelder-Mead",
                control = list(maxit = 5e3,
-                              parscale = parscale))
+                              parscale = parscale2))
 
   test.res=c(test$value,test$par,test$convergence,start_ind, end_ind)
   cnames_res = c("mLL","h2X","h2Y","tX","tY","axy","ayx","iXY","conv","start_ind", "end_ind")
