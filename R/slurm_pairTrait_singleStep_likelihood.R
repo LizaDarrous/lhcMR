@@ -3,7 +3,7 @@
 #' @param par
 #'
 #' @return
-# @export
+#' @export
 #'
 #' @examples
 slurm_pairTrait_singleStep_likelihood = function(par){

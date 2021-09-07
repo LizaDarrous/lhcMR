@@ -1,11 +1,3 @@
-#' Title
-#'
-#' @param slr_job
-#'
-#' @return
-# @export
-#'
-#' @examples
 get_job_status <- function (slr_job)
 {
   if (!(class(slr_job) == "slurm_job"))

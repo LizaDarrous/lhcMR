@@ -67,7 +67,7 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
 
   # run analysis based on parallelisation method/number of steps
   if(run_TwoStep){
-    parscale = c(1e-1,1e-1,1e-1,1e-1,1e-1,1e-1,1e-1)
+    parscale2 = c(1e-1,1e-1,1e-1,1e-1,1e-1,1e-1,1e-1)
     assign(x="betXY", value=betXY, env=.GlobalEnv)
     assign(x="pi1", value=pi1, env=.GlobalEnv)
     assign(x="sig1", value=sig1, env=.GlobalEnv)
@@ -79,21 +79,22 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
     assign(x="param", value=param, env=.GlobalEnv)
     assign(x="bn", value=bn, env=.GlobalEnv)
     assign(x="bins", value=bins, env=.GlobalEnv)
-    assign(x="parscale", value=parscale, env=.GlobalEnv)
+    assign(x="parscale2", value=parscale2, env=.GlobalEnv)
 
 #    utils::globalVariables(c("betXY", "pi1", "sig1", "m0", "M", "nX", "nY", "piU", "param", "bn", "bins", "parscale"))
     if(paral_method=="rslurm"){
       sjob = slurm_apply(f = slurm_pairTrait_twoStep_likelihood, params = par.df, jobname = paste0(EXP,"-",OUT,"_optim"), nodes = SP_pair, cpus_per_node = 1,
                          global_objects = c("betXY","pi1","sig1","weights","m0","M","nX","nY","piU","piX","piY",
-                                         "iX","iY","param","bn","bins","parscale"),
+                                         "iX","iY","param","bn","bins","parscale2"),
                          slurm_options = list(partition = partition),
                          submit = TRUE)
       #Keep a loop open till the job is completely done.
       wait_counter = 0
       while (wait_counter < 1) {
         wait_counter = 0
-        if (tryCatch(stringr::str_detect(lhcMR::get_job_status(sjob),"completed"), warning = function(w){FALSE},
-                     error = function(e){FALSE})) {
+        #if (tryCatch(stringr::str_detect(lhcMR::get_job_status(sjob2),"completed"), warning = function(w){FALSE},
+        #             error = function(e){FALSE})) {
+        if(get_job_status(sjob2)$completed){
           wait_counter = wait_counter + 1
         } else{
           wait_counter = wait_counter
@@ -121,15 +122,16 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
 
       sjob2 = slurm_apply(f = slurm_blockJK_twoStep_likelihood, params = par.df2, jobname = paste0(EXP,"-",OUT,"_blockJK"), nodes = nrow(par.df2), cpus_per_node = 1,
                           global_objects = c("betXY","pi1","sig1","weights","m0","M","nX","nY","piU","piX","piY",
-                                         "iX","iY","param","bn","bins","parscale"),
+                                         "iX","iY","param","bn","bins","parscale2"),
                          slurm_options = list(partition = partition),
                          submit = TRUE)
       #Keep a loop open till the job is completely done.
       wait_counter = 0
       while (wait_counter < 1) {
         wait_counter = 0
-        if (tryCatch(stringr::str_detect(lhcMR::get_job_status(sjob2),"completed"), warning = function(w){FALSE},
-                     error = function(e){FALSE})) {
+        #if (tryCatch(stringr::str_detect(lhcMR::get_job_status(sjob2),"completed"), warning = function(w){FALSE},
+        #             error = function(e){FALSE})) {
+        if(get_job_status(sjob2)$completed){
           wait_counter = wait_counter + 1
         } else{
           wait_counter = wait_counter
@@ -155,7 +157,8 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
                       m0=m0, nX=nX, nY=nY, pi_U=piU, pi_X=piX, pi_Y=piY, i_X=iX, i_Y=iY,
                       bn=2^7, bins=10,
                       method = "Nelder-Mead",
-                      control = list(maxit = 5e3))
+                      control = list(maxit = 5e3,
+                                     parscale = parscale2))
 
         list("mLL"=test$value,"par"=test$par,"conv"=test$convergence)
       })
@@ -190,7 +193,7 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
                      m0=m0, nX=nX, nY=nY, bn=bn, bins=bins, model=param,
                      method = "Nelder-Mead",
                      control = list(maxit = 5e3,
-                                    parscale = parscale))
+                                    parscale = parscale2))
 
         list("mLL"=test1$value,"par"=test1$par,"conv"=test1$convergence)
       })
@@ -211,7 +214,7 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
 
 
   if(run_SingleStep){
-    parscale = c(1e-4,1e-4,1e-1,1e-1,1e-1,1e-1,1e-1,1e-1,1e-1)
+    parscale1 = c(1e-4,1e-4,1e-1,1e-1,1e-1,1e-1,1e-1,1e-1,1e-1)
     assign(x="betXY", value=betXY, env=.GlobalEnv)
     assign(x="pi1", value=pi1, env=.GlobalEnv)
     assign(x="sig1", value=sig1, env=.GlobalEnv)
@@ -223,19 +226,20 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
     assign(x="param", value=param, env=.GlobalEnv)
     assign(x="bn", value=bn, env=.GlobalEnv)
     assign(x="bins", value=bins, env=.GlobalEnv)
-    assign(x="parscale", value=parscale, env=.GlobalEnv)
+    assign(x="parscale1", value=parscale1, env=.GlobalEnv)
     if(paral_method=="rslurm"){
       sjob = slurm_apply(f = slurm_pairTrait_singleStep_likelihood, params = par.df, jobname = paste0(EXP,"_",OUT), nodes = SP_pair, cpus_per_node = 1,
                          global_objects = c("betXY","pi1","sig1","weights","m0","M","nX","nY","piU",
-                                         "iX","iY","param","bn","bins","parscale"),
+                                         "iX","iY","param","bn","bins","parscale1"),
                          slurm_options = list(partition = partition),
                          submit = TRUE)
       #Keep a loop open till the job is completely done.
       wait_counter = 0
       while (wait_counter < 1) {
         wait_counter = 0
-        if (tryCatch(stringr::str_detect(lhcMR::get_job_status(sjob)[1],"completed"), warning = function(w){FALSE},
-                     error = function(e){FALSE})) {
+        #if (tryCatch(stringr::str_detect(lhcMR::get_job_status(sjob2),"completed"), warning = function(w){FALSE},
+        #             error = function(e){FALSE})) {
+        if(get_job_status(sjob2)$completed){
           wait_counter = wait_counter + 1
         } else{
           wait_counter = wait_counter
@@ -264,15 +268,16 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
 
       sjob2 = slurm_apply(f = slurm_blockJK_singleStep_likelihood, params = par.df2, jobname = paste0(EXP,"-",OUT,"_blockJK"), nodes = nrow(par.df2), cpus_per_node = 1,
                           global_objects = c("betXY","pi1","sig1","weights","m0","M","nX","nY","piU",
-                                          "iX","iY","param","bn","bins","parscale"),
+                                          "iX","iY","param","bn","bins","parscale1"),
                           slurm_options = list(partition = partition),
                           submit = TRUE)
       #Keep a loop open till the job is completely done.
       wait_counter = 0
       while (wait_counter < 1) {
         wait_counter = 0
-        if (tryCatch(str_detect(lhcMR::get_job_status(sjob2),"completed"), warning = function(w){FALSE},
-                     error = function(e){FALSE})) {
+        #if (tryCatch(stringr::str_detect(lhcMR::get_job_status(sjob2),"completed"), warning = function(w){FALSE},
+        #             error = function(e){FALSE})) {
+        if(get_job_status(sjob2)$completed){
           wait_counter = wait_counter + 1
         } else{
           wait_counter = wait_counter
@@ -300,7 +305,8 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
                       m0=m0, nX=nX, nY=nY, pi_U=piU, i_X=iX, i_Y=iY,
                       bn=2^7, bins=10,
                       method = "Nelder-Mead",
-                      control = list(maxit = 5e3))
+                      control = list(maxit = 5e3,
+                                     parscale = parscale1))
 
         list("mLL"=test1$value,"par"=test1$par,"conv"=test1$convergence)
       })
@@ -341,7 +347,7 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
                       m0=m0, nX=nX, nY=nY, bn=bn, bins=bins, model=param,
                       method = "Nelder-Mead",
                       control = list(maxit = 5e3,
-                                     parscale = parscale))
+                                     parscale = parscale1))
 
         list("mLL"=test1$value,"par"=test1$par,"conv"=test1$convergence)
       })

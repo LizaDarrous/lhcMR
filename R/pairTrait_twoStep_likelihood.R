@@ -21,7 +21,7 @@
 #' @importFrom stats fft sd
 #'
 #' @return
-# @export
+#' @export
 #'
 #' @examples
 pairTrait_twoStep_likelihood <- function(theta,betXY,pi1,sig1,weights,m0,pi_U=0.1,pi_X,pi_Y,i_X,i_Y,nX,nY,model="comp",bn=2^8,bins=15,M=1e7){
