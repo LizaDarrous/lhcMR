@@ -16,8 +16,6 @@
 
 gettingSP_ldscMR = function(input.df,trait.names,log.file,run_ldsc=TRUE,run_MR=TRUE,hm3,ld){
 
-  cat(hm3)
-
   EXP = trait.names[1]
   OUT = trait.names[2]
   nX = mean(input.df$N.x)  #Get sample size for trait X

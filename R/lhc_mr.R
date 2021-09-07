@@ -68,9 +68,23 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
   # run analysis based on parallelisation method/number of steps
   if(run_TwoStep){
     parscale = c(1e-1,1e-1,1e-1,1e-1,1e-1,1e-1,1e-1)
+    assign(x="betXY", value=betXY, env=.GlobalEnv)
+    assign(x="pi1", value=pi1, env=.GlobalEnv)
+    assign(x="sig1", value=sig1, env=.GlobalEnv)
+    assign(x="m0", value=m0, env=.GlobalEnv)
+    assign(x="M", value=M, env=.GlobalEnv)
+    assign(x="nX", value=nX, env=.GlobalEnv)
+    assign(x="nY", value=nY, env=.GlobalEnv)
+    assign(x="piU", value=piU, env=.GlobalEnv)
+    assign(x="param", value=param, env=.GlobalEnv)
+    assign(x="bn", value=bn, env=.GlobalEnv)
+    assign(x="bins", value=bins, env=.GlobalEnv)
+    assign(x="parscale", value=parscale, env=.GlobalEnv)
+
+#    utils::globalVariables(c("betXY", "pi1", "sig1", "m0", "M", "nX", "nY", "piU", "param", "bn", "bins", "parscale"))
     if(paral_method=="rslurm"){
       sjob = slurm_apply(f = slurm_pairTrait_twoStep_likelihood, params = par.df, jobname = paste0(EXP,"-",OUT,"_optim"), nodes = SP_pair, cpus_per_node = 1,
-                         add_objects = c("betXY","pi1","sig1","weights","m0","M","nX","nY","piU","piX","piY",
+                         global_objects = c("betXY","pi1","sig1","weights","m0","M","nX","nY","piU","piX","piY",
                                          "iX","iY","param","bn","bins","parscale"),
                          slurm_options = list(partition = partition),
                          submit = TRUE)
@@ -106,7 +120,7 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
       par.df2 = merge(par.df2,JK_index)
 
       sjob2 = slurm_apply(f = slurm_blockJK_twoStep_likelihood, params = par.df2, jobname = paste0(EXP,"-",OUT,"_blockJK"), nodes = nrow(par.df2), cpus_per_node = 1,
-                         add_objects = c("betXY","pi1","sig1","weights","m0","M","nX","nY","piU","piX","piY",
+                          global_objects = c("betXY","pi1","sig1","weights","m0","M","nX","nY","piU","piX","piY",
                                          "iX","iY","param","bn","bins","parscale"),
                          slurm_options = list(partition = partition),
                          submit = TRUE)
@@ -198,9 +212,21 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
 
   if(run_SingleStep){
     parscale = c(1e-4,1e-4,1e-1,1e-1,1e-1,1e-1,1e-1,1e-1,1e-1)
+    assign(x="betXY", value=betXY, env=.GlobalEnv)
+    assign(x="pi1", value=pi1, env=.GlobalEnv)
+    assign(x="sig1", value=sig1, env=.GlobalEnv)
+    assign(x="m0", value=m0, env=.GlobalEnv)
+    assign(x="M", value=M, env=.GlobalEnv)
+    assign(x="nX", value=nX, env=.GlobalEnv)
+    assign(x="nY", value=nY, env=.GlobalEnv)
+    assign(x="piU", value=piU, env=.GlobalEnv)
+    assign(x="param", value=param, env=.GlobalEnv)
+    assign(x="bn", value=bn, env=.GlobalEnv)
+    assign(x="bins", value=bins, env=.GlobalEnv)
+    assign(x="parscale", value=parscale, env=.GlobalEnv)
     if(paral_method=="rslurm"){
       sjob = slurm_apply(f = slurm_pairTrait_singleStep_likelihood, params = par.df, jobname = paste0(EXP,"_",OUT), nodes = SP_pair, cpus_per_node = 1,
-                         add_objects = c("betXY","pi1","sig1","weights","m0","M","nX","nY","piU",
+                         global_objects = c("betXY","pi1","sig1","weights","m0","M","nX","nY","piU",
                                          "iX","iY","param","bn","bins","parscale"),
                          slurm_options = list(partition = partition),
                          submit = TRUE)
@@ -237,7 +263,7 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
       par.df2 = merge(par.df2,JK_index)
 
       sjob2 = slurm_apply(f = slurm_blockJK_singleStep_likelihood, params = par.df2, jobname = paste0(EXP,"-",OUT,"_blockJK"), nodes = nrow(par.df2), cpus_per_node = 1,
-                          add_objects = c("betXY","pi1","sig1","weights","m0","M","nX","nY","piU",
+                          global_objects = c("betXY","pi1","sig1","weights","m0","M","nX","nY","piU",
                                           "iX","iY","param","bn","bins","parscale"),
                           slurm_options = list(partition = partition),
                           submit = TRUE)

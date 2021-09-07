@@ -111,7 +111,6 @@ calculate_SP <- function(input.df,trait.names,log.file=NA,run_ldsc=TRUE,run_MR=T
     sp_iXY = rep(i_XY,SP_pair)
 
     para=cbind(sp_h2X,sp_h2Y,sp_tX,sp_tY,sp_axy,sp_ayx,sp_iXY)
-    print(dim(para))
     sp_mat1=matrix(unlist(para), ncol=7, byrow = FALSE)
     colnames(sp_mat1)=c("sp_h2X","sp_h2Y","sp_tX","sp_tY","sp_axy","sp_ayx","sp_iXY")
     #sp_mat1 = cbind("SP"=c(1:nrow(sp_mat1)),sp_mat1)
