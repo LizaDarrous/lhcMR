@@ -83,6 +83,7 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
 
 #    utils::globalVariables(c("betXY", "pi1", "sig1", "m0", "M", "nX", "nY", "piU", "param", "bn", "bins", "parscale"))
     if(paral_method=="rslurm"){
+      cat(print("Running optimisation"))
       sjob = slurm_apply(f = slurm_pairTrait_twoStep_likelihood, params = par.df, jobname = paste0(EXP,"-",OUT,"_optim"), nodes = SP_pair, cpus_per_node = 1,
                          global_objects = c("betXY","pi1","sig1","weights","m0","M","nX","nY","piU","piX","piY",
                                          "iX","iY","param","bn","bins","parscale2"),
@@ -94,7 +95,7 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
         wait_counter = 0
         #if (tryCatch(stringr::str_detect(lhcMR::get_job_status(sjob2),"completed"), warning = function(w){FALSE},
         #             error = function(e){FALSE})) {
-        if(get_job_status(sjob)$completed){
+        if(get_job_status_lhc(sjob)$completed){
           wait_counter = wait_counter + 1
         } else{
           wait_counter = wait_counter
@@ -113,6 +114,7 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
       cleanup_files(sjob)
 
       ## running blockJK
+      cat(print("Running block JK"))
       res_ordered = res_values[order(res_values$mLL, decreasing = F),]
       sp_mat2 = dplyr::select(res_ordered,h2X,h2Y,tX,tY,axy,ayx,iXY)
       sp_mat2 = sp_mat2[1,]
@@ -131,7 +133,7 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
         wait_counter = 0
         #if (tryCatch(stringr::str_detect(lhcMR::get_job_status(sjob2),"completed"), warning = function(w){FALSE},
         #             error = function(e){FALSE})) {
-        if(get_job_status(sjob2)$completed){
+        if(get_job_status_lhc(sjob2)$completed){
           wait_counter = wait_counter + 1
         } else{
           wait_counter = wait_counter
@@ -150,6 +152,7 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
     }
 
     if(paral_method=="lapply"){
+      cat(print("Running optimisation"))
       test.res <- lapply(par.df[[1]], function(x) {
         theta = unlist(x)
         test = optim(theta, pairTrait_twoStep_likelihood,
@@ -175,6 +178,7 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
       write.csv(res_values, paste0("FullRes_",EXP,"-",OUT,".csv"), row.names = FALSE) ## Will be used to read new sp_mat
 
       ## running blockJK
+      cat(print("Running block JK"))
       res_ordered = res_values[order(res_values$mLL, decreasing = F),]
       sp_mat2 = dplyr::select(res_ordered,h2X,h2Y,tX,tY,axy,ayx,iXY)
       sp_mat2 = sp_mat2[1,]
@@ -184,12 +188,12 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
 
       test.res1 <- lapply(split(par.df2,1:nrow(par.df2)), function(x) {
         theta = unlist(x[1])
-        start_ind = x[2]
-        end_ind = x[3]
+        start_ind = as.numeric(x[2])
+        end_ind = as.numeric(x[3])
         test1 = optim(theta, pairTrait_twoStep_likelihood,
                      betXY=betXY[-(start_ind:end_ind),], pi1=pi1[-(start_ind:end_ind)], sig1=sig1[-(start_ind:end_ind)],
                      weights=weights[-(start_ind:end_ind)], pi_U=pi_U,
-                     pi_X=pi_X, pi_Y=pi_Y, i_X=iX, i_Y=iY,
+                     pi_X=piX, pi_Y=piY, i_X=iX, i_Y=iY,
                      m0=m0, nX=nX, nY=nY, bn=bn, bins=bins, model=param,
                      method = "Nelder-Mead",
                      control = list(maxit = 5e3,
@@ -228,6 +232,7 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
     assign(x="bins", value=bins, env=.GlobalEnv)
     assign(x="parscale1", value=parscale1, env=.GlobalEnv)
     if(paral_method=="rslurm"){
+      cat(print("Running optimisation"))
       sjob = slurm_apply(f = slurm_pairTrait_singleStep_likelihood, params = par.df, jobname = paste0(EXP,"_",OUT), nodes = SP_pair, cpus_per_node = 1,
                          global_objects = c("betXY","pi1","sig1","weights","m0","M","nX","nY","piU",
                                          "iX","iY","param","bn","bins","parscale1"),
@@ -239,7 +244,7 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
         wait_counter = 0
         #if (tryCatch(stringr::str_detect(lhcMR::get_job_status(sjob2),"completed"), warning = function(w){FALSE},
         #             error = function(e){FALSE})) {
-        if(get_job_status(sjob)$completed){
+        if(get_job_status_lhc(sjob)$completed){
           wait_counter = wait_counter + 1
         } else{
           wait_counter = wait_counter
@@ -259,6 +264,7 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
       cleanup_files(sjob)
 
       ## running blockJK
+      cat(print("Running block JK"))
       res_ordered = res_values[order(res_values$mLL, decreasing = F),]
       sp_mat2 = dplyr::select(res_ordered,piX,piY,h2X,h2Y,tX,tY,axy,ayx,iXY)
       sp_mat2 = sp_mat2[1,]
@@ -277,7 +283,7 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
         wait_counter = 0
         #if (tryCatch(stringr::str_detect(lhcMR::get_job_status(sjob2),"completed"), warning = function(w){FALSE},
         #             error = function(e){FALSE})) {
-        if(get_job_status(sjob2)$completed){
+        if(get_job_status_lhc(sjob2)$completed){
           wait_counter = wait_counter + 1
         } else{
           wait_counter = wait_counter
@@ -298,6 +304,7 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
     }
 
     if(paral_method=="lapply"){
+      cat(print("Running optimisation"))
       test.res <- lapply(par.df[[1]], function(x) {
         theta = unlist(x)
         test1 = optim(theta, pairTrait_singleStep_likelihood,
@@ -326,6 +333,7 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
       write.csv(res_values, paste0("FullRes_",EXP,"-",OUT,".csv"), row.names = FALSE)
 
       ## running blockJK
+      cat(print("Running block JK"))
       res_ordered = res_values[order(res_values$mLL, decreasing = F),]
       sp_mat2 = dplyr::select(res_ordered,piX,piY,h2X,h2Y,tX,tY,axy,ayx,iXY)
       sp_mat2 = sp_mat2[1,]
@@ -335,8 +343,8 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
 
       test.res1 <- lapply(split(par.df2,1:nrow(par.df2)), function(x) {
         theta = unlist(x[1])
-        start_ind = x[2]
-        end_ind = x[3]
+        start_ind = as.numeric(x[2])
+        end_ind = as.numeric(x[3])
         print(theta)
         print(start_ind)
         print(end_ind)

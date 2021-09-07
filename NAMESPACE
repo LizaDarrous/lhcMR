@@ -2,6 +2,7 @@
 
 export("%>%")
 export(calculate_SP)
+export(get_job_status_lhc)
 export(lhc_mr)
 export(merge_sumstats)
 export(pairTrait_singleStep_likelihood)
