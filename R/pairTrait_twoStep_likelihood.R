@@ -4,7 +4,7 @@
 #' @param betXY
 #' @param pi1
 #' @param sig1
-#' @param weights
+#' @param w8s
 #' @param m0
 #' @param pi_U
 #' @param pi_X
@@ -24,7 +24,7 @@
 #' @export
 #'
 #' @examples
-pairTrait_twoStep_likelihood <- function(theta,betXY,pi1,sig1,weights,m0,pi_U=0.1,pi_X,pi_Y,i_X,i_Y,nX,nY,model="comp",bn=2^8,bins=15,M=1e7){
+pairTrait_twoStep_likelihood <- function(theta,betXY,pi1,sig1,w8s,m0,pi_U=0.1,pi_X,pi_Y,i_X,i_Y,nX,nY,model="comp",bn=2^8,bins=15,M=1e7){
 
   M = M #1e7
   piX = pi_X
@@ -177,11 +177,11 @@ pairTrait_twoStep_likelihood <- function(theta,betXY,pi1,sig1,weights,m0,pi_U=0.
     pfE = FFT0[ixF];
     selu = which(pfE>0);
     pfE = pfE[selu];
-    my_weights = weights[selu]  # update weights vector if some SNPs are excluded
+    my_w8s = w8s[selu]  # update weights vector if some SNPs are excluded
     nmiss = length(selu);
 
     lpfE = log(pfE);
-    logL = -m * mean(log(pfE*my_weights))
+    logL = -m * mean(log(pfE*my_w8s))
   }
   return(logL)
 }

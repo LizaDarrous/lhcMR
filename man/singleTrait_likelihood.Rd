@@ -9,7 +9,7 @@ singleTrait_likelihood(
   betX,
   pi1,
   sig1,
-  weights,
+  w8s,
   m0,
   nX,
   bn = 2^8,

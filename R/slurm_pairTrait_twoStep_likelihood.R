@@ -10,7 +10,7 @@ slurm_pairTrait_twoStep_likelihood = function(par){
   theta=unlist(par)
 
   test = optim(theta, pairTrait_twoStep_likelihood,
-               betXY=betXY, pi1=pi1, sig1=sig1, weights=weights, pi_U=piU,
+               betXY=betXY, pi1=pi1, sig1=sig1, w8s=w8s, pi_U=piU,
                pi_X=piX, pi_Y=piY, i_X=iX, i_Y=iY,
                m0=m0, M=M, nX=nX, nY=nY, bn=bn, bins=bins, model=param,
                method = "Nelder-Mead",

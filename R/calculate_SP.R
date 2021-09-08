@@ -41,7 +41,7 @@ calculate_SP <- function(input.df,trait.names,log.file=NA,run_ldsc=TRUE,run_MR=T
   bY = input.df_filtered$TSTAT.y/sqrt(nY)   #Get standardised beta for trait Y
 
   ld = input.df_filtered$LDSC
-  weights = input.df_filtered$WEIGHT
+  w8s = input.df_filtered$WEIGHT
   pi1 = input.df_filtered$PIK
   sig1 = input.df_filtered$SIGK
 
@@ -61,7 +61,7 @@ calculate_SP <- function(input.df,trait.names,log.file=NA,run_ldsc=TRUE,run_MR=T
     test.exp <- lapply(par.df[[1]], function(x) {
       theta = unlist(x)
       test1 = optim(theta, singleTrait_likelihood,
-                    betX=bX, pi1=pi1, sig1=sig1, weights=weights,
+                    betX=bX, pi1=pi1, sig1=sig1, w8s=w8s,
                     m0=m0, nX=nX, bn=2^7, bins=10,
                     method = "Nelder-Mead",
                     control = list(maxit = 5e3))
@@ -74,7 +74,7 @@ calculate_SP <- function(input.df,trait.names,log.file=NA,run_ldsc=TRUE,run_MR=T
     test.out <- lapply(par.df[[1]], function(x) {
       theta = unlist(x)
       test1 = optim(theta, singleTrait_likelihood,
-                    betX=bY, pi1=pi1, sig1=sig1, weights=weights,
+                    betX=bY, pi1=pi1, sig1=sig1, w8s=w8s,
                     m0=m0, nX=nX, bn=2^7, bins=10,
                     method = "Nelder-Mead",
                     control = list(maxit = 5e3))
@@ -104,8 +104,8 @@ calculate_SP <- function(input.df,trait.names,log.file=NA,run_ldsc=TRUE,run_MR=T
   if(run_TwoStep==TRUE){
     sp_tX = runif(SP_pair,0,0.5)
     sp_tY = runif(SP_pair,-0.5,0.5)
-    sp_h2X = h2_x-(sp_tX^2)
-    sp_h2Y = h2_y-(sp_tY^2)
+    sp_h2X = max(0,h2_x-(sp_tX^2))
+    sp_h2Y = max(0,h2_y-(sp_tY^2))
     sp_axy = replicate(SP_pair, (axy_MR+runif(1,-0.1,0.1)))
     sp_ayx = replicate(SP_pair, (ayx_MR+runif(1,-0.1,0.1)))
     sp_iXY = rep(i_XY,SP_pair)

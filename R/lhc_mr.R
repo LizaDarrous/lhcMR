@@ -49,7 +49,7 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
   betXY = cbind(bX,bY)
 
   ld = input.df_filtered$LDSC
-  weights = input.df_filtered$WEIGHT
+  w8s = input.df_filtered$WEIGHT
   pi1 = input.df_filtered$PIK
   sig1 = input.df_filtered$SIGK
 
@@ -85,7 +85,7 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
     if(paral_method=="rslurm"){
       cat(print("Running optimisation"))
       sjob = slurm_apply(f = slurm_pairTrait_twoStep_likelihood, params = par.df, jobname = paste0(EXP,"-",OUT,"_optim"), nodes = SP_pair, cpus_per_node = 1,
-                         global_objects = c("betXY","pi1","sig1","weights","m0","M","nX","nY","piU","piX","piY",
+                         global_objects = c("betXY","pi1","sig1","w8s","m0","M","nX","nY","piU","piX","piY",
                                          "iX","iY","param","bn","bins","parscale2"),
                          slurm_options = list(partition = partition),
                          submit = TRUE)
@@ -123,7 +123,7 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
       par.df2 = merge(par.df2,JK_index)
 
       sjob2 = slurm_apply(f = slurm_blockJK_twoStep_likelihood, params = par.df2, jobname = paste0(EXP,"-",OUT,"_blockJK"), nodes = nrow(par.df2), cpus_per_node = 1,
-                          global_objects = c("betXY","pi1","sig1","weights","m0","M","nX","nY","piU","piX","piY",
+                          global_objects = c("betXY","pi1","sig1","w8s","m0","M","nX","nY","piU","piX","piY",
                                          "iX","iY","param","bn","bins","parscale2"),
                          slurm_options = list(partition = partition),
                          submit = TRUE)
@@ -156,7 +156,7 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
       test.res <- lapply(par.df[[1]], function(x) {
         theta = unlist(x)
         test = optim(theta, pairTrait_twoStep_likelihood,
-                      betX=betXY, pi1=pi1, sig1=sig1, weights=weights,
+                      betX=betXY, pi1=pi1, sig1=sig1, w8s=w8s,
                       m0=m0, nX=nX, nY=nY, pi_U=piU, pi_X=piX, pi_Y=piY, i_X=iX, i_Y=iY,
                       bn=2^7, bins=10,
                       method = "Nelder-Mead",
@@ -192,7 +192,7 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
         end_ind = as.numeric(x[3])
         test1 = optim(theta, pairTrait_twoStep_likelihood,
                      betXY=betXY[-(start_ind:end_ind),], pi1=pi1[-(start_ind:end_ind)], sig1=sig1[-(start_ind:end_ind)],
-                     weights=weights[-(start_ind:end_ind)], pi_U=piU,
+                     w8s=w8s[-(start_ind:end_ind)], pi_U=piU,
                      pi_X=piX, pi_Y=piY, i_X=iX, i_Y=iY,
                      m0=m0, nX=nX, nY=nY, bn=bn, bins=bins, model=param,
                      method = "Nelder-Mead",
@@ -235,7 +235,7 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
     if(paral_method=="rslurm"){
       cat(print("Running optimisation"))
       sjob = slurm_apply(f = slurm_pairTrait_singleStep_likelihood, params = par.df, jobname = paste0(EXP,"_",OUT), nodes = SP_pair, cpus_per_node = 1,
-                         global_objects = c("betXY","pi1","sig1","weights","m0","M","nX","nY","piU",
+                         global_objects = c("betXY","pi1","sig1","w8s","m0","M","nX","nY","piU",
                                          "iX","iY","param","bn","bins","parscale1"),
                          slurm_options = list(partition = partition),
                          submit = TRUE)
@@ -274,7 +274,7 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
       par.df2 = merge(par.df2,JK_index)
 
       sjob2 = slurm_apply(f = slurm_blockJK_singleStep_likelihood, params = par.df2, jobname = paste0(EXP,"-",OUT,"_blockJK"), nodes = nrow(par.df2), cpus_per_node = 1,
-                          global_objects = c("betXY","pi1","sig1","weights","m0","M","nX","nY","piU",
+                          global_objects = c("betXY","pi1","sig1","w8s","m0","M","nX","nY","piU",
                                           "iX","iY","param","bn","bins","parscale1"),
                           slurm_options = list(partition = partition),
                           submit = TRUE)
@@ -309,7 +309,7 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
       test.res <- lapply(par.df[[1]], function(x) {
         theta = unlist(x)
         test1 = optim(theta, pairTrait_singleStep_likelihood,
-                      betX=betXY, pi1=pi1, sig1=sig1, weights=weights,
+                      betX=betXY, pi1=pi1, sig1=sig1, w8s=w8s,
                       m0=m0, nX=nX, nY=nY, pi_U=piU, i_X=iX, i_Y=iY,
                       bn=2^7, bins=10,
                       method = "Nelder-Mead",
@@ -351,7 +351,7 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
         print(end_ind)
         test1 = optim(theta, pairTrait_singleStep_likelihood,
                       betXY=betXY[-(start_ind:end_ind),], pi1=pi1[-(start_ind:end_ind)], sig1=sig1[-(start_ind:end_ind)],
-                      weights=weights[-(start_ind:end_ind)], pi_U=piU,
+                      w8s=w8s[-(start_ind:end_ind)], pi_U=piU,
                       i_X=iX, i_Y=iY,
                       m0=m0, nX=nX, nY=nY, bn=bn, bins=bins, model=param,
                       method = "Nelder-Mead",

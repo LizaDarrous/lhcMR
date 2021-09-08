@@ -13,7 +13,7 @@ slurm_blockJK_twoStep_likelihood = function(par,start_ind, end_ind){
 
   test = optim(theta, pairTrait_twoStep_likelihood,
                betXY=betXY[-(start_ind:end_ind),], pi1=pi1[-(start_ind:end_ind)], sig1=sig1[-(start_ind:end_ind)],
-               weights=weights[-(start_ind:end_ind)], pi_U=piU,
+               w8s=w8s[-(start_ind:end_ind)], pi_U=piU,
                pi_X=pi_X, pi_Y=pi_Y, i_X=iX, i_Y=iY,
                m0=m0, M=M, nX=nX, nY=nY, bn=bn, bins=bins, model=param,
                method = "Nelder-Mead",

@@ -9,7 +9,7 @@ pairTrait_singleStep_likelihood(
   betXY,
   pi1,
   sig1,
-  weights,
+  w8s,
   m0,
   pi_U = 0.1,
   i_X,
