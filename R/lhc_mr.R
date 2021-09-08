@@ -17,7 +17,7 @@
 #' @return
 #' @export
 #'
-#' @importFrom rslurm slurm_apply
+#' @importFrom rslurm slurm_apply get_slurm_out
 #' @importFrom stringr str_detect str_split str_squish
 #' @importFrom dplyr mutate
 #' @importFrom MASS fitdistr
