@@ -192,18 +192,18 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
         end_ind = as.numeric(x[3])
         test1 = optim(theta, pairTrait_twoStep_likelihood,
                      betXY=betXY[-(start_ind:end_ind),], pi1=pi1[-(start_ind:end_ind)], sig1=sig1[-(start_ind:end_ind)],
-                     weights=weights[-(start_ind:end_ind)], pi_U=pi_U,
+                     weights=weights[-(start_ind:end_ind)], pi_U=piU,
                      pi_X=piX, pi_Y=piY, i_X=iX, i_Y=iY,
                      m0=m0, nX=nX, nY=nY, bn=bn, bins=bins, model=param,
                      method = "Nelder-Mead",
                      control = list(maxit = 5e3,
                                     parscale = parscale2))
 
-        list("mLL"=test1$value,"par"=test1$par,"conv"=test1$convergence)
+        list("mLL"=test1$value,"par"=test1$par,"conv"=test1$convergence,"start_ind"=start_ind, "end_ind"=end_ind)
       })
 
       test.res1 = as.data.frame(t(matrix(unlist(test.res1), nrow=length(unlist(test.res1[1])))))
-      colnames(test.res1)=c("mLL", "h2X","h2Y","tX","tY","axy","ayx","iXY","conv")
+      colnames(test.res1)=c("mLL", "h2X","h2Y","tX","tY","axy","ayx","iXY","conv","start_ind", "end_ind")
 
       test.res1 %>%
         mutate(h2X = abs(h2X),
@@ -231,6 +231,7 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
     assign(x="bn", value=bn, env=.GlobalEnv)
     assign(x="bins", value=bins, env=.GlobalEnv)
     assign(x="parscale1", value=parscale1, env=.GlobalEnv)
+
     if(paral_method=="rslurm"){
       cat(print("Running optimisation"))
       sjob = slurm_apply(f = slurm_pairTrait_singleStep_likelihood, params = par.df, jobname = paste0(EXP,"_",OUT), nodes = SP_pair, cpus_per_node = 1,
@@ -357,11 +358,11 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
                       control = list(maxit = 5e3,
                                      parscale = parscale1))
 
-        list("mLL"=test1$value,"par"=test1$par,"conv"=test1$convergence)
+        list("mLL"=test1$value,"par"=test1$par,"conv"=test1$convergence,"start_ind"=start_ind, "end_ind"=end_ind)
       })
 
       test.res1 = as.data.frame(t(matrix(unlist(test.res1), nrow=length(unlist(test.res1[1])))))
-      colnames(test.res1)=c("mLL","piX","piY","h2X","h2Y","tX","tY","axy","ayx","iXY","conv")
+      colnames(test.res1)=c("mLL","piX","piY","h2X","h2Y","tX","tY","axy","ayx","iXY","conv","start_ind", "end_ind")
 
       test.res1 %>%
         mutate(piX = abs(piX),
@@ -430,7 +431,7 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
   JK_res$bimod = "FALSE"
   JK_res$bimod[bimo] = "TRUE"
 
-  write.csv(JK_res,paste0("JKres_,",nBlock,"_",EXP,"-",OUT,".csv"), row.names = F)
+  write.csv(JK_res,paste0("JKres_",nBlock,"_",EXP,"-",OUT,".csv"), row.names = F)
 
   cov_matrix = cov(res_minFil)
   write.csv(cov_matrix,paste0("VarCovMatrix_",EXP,"-",OUT,".csv"))
