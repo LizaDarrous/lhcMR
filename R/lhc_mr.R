@@ -18,15 +18,20 @@
 #' @export
 #'
 #' @importFrom rslurm slurm_apply get_slurm_out cleanup_files
-#' @importFrom stringr str_detect str_split str_squish
+#' @importFrom stringr str_detect str_split str_squish str_which
 #' @importFrom dplyr mutate
 #' @importFrom MASS fitdistr
 #' @importFrom mixtools normalmixEM
 #' @importFrom stats cov median var
 #'
 #' @examples
-lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP_pair=100,partition=NA,run_SingleStep=FALSE,
-                  run_TwoStep=TRUE,paral_method="rslurm",nBlock=200, M=1e7){
+lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP_pair=100,partition=NA,StepNum=2,
+                  paral_method="rslurm",nBlock=200, M=1e7){
+
+  if(StepNum>2 || StepNum<1){
+    cat(print("Please choose 1 or 2 for the number of analysis steps"))
+    stop()
+  }
 
   # generate a dataframe of lists for each row of parameters - input for rslurm/lapply
   par.df = data.frame(par=I(apply(SP_matrix,1,as.list)))
@@ -66,7 +71,7 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
   JK_index=cbind(start_ind,end_ind)
 
   # run analysis based on parallelisation method/number of steps
-  if(run_TwoStep){
+  if(StepNum == 2){
     parscale2 = c(1e-1,1e-1,1e-1,1e-1,1e-1,1e-1,1e-1)
     assign(x="betXY", value=betXY, env=.GlobalEnv)
     assign(x="pi1", value=pi1, env=.GlobalEnv)
@@ -85,7 +90,7 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
 #    utils::globalVariables(c("betXY", "pi1", "sig1", "m0", "M", "nX", "nY", "piU", "param", "bn", "bins", "parscale"))
     if(paral_method=="rslurm"){
       cat(print("Running optimisation"))
-      sjob = slurm_apply(f = slurm_pairTrait_twoStep_likelihood, params = par.df, jobname = paste0(EXP,"-",OUT,"_optim"), nodes = SP_pair, cpus_per_node = 1,
+      sjob = slurm_apply(f = slurm_pairTrait_twoStep_likelihood, params = par.df, jobname = paste0(EXP,"_",OUT,"_optim"), nodes = SP_pair, cpus_per_node = 1,
                          global_objects = c("betXY","pi1","sig1","w8s","m0","M","nX","nY","piU","piX","piY",
                                          "iX","iY","param","bn","bins","parscale2"),
                          slurm_options = list(partition = partition),
@@ -123,7 +128,7 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
       par.df2 = data.frame(par=I(apply(sp_mat2,1,as.list))) #generate a dataframe of lists for each row of parameters - input for rslurm
       par.df2 = merge(par.df2,JK_index)
 
-      sjob2 = slurm_apply(f = slurm_blockJK_twoStep_likelihood, params = par.df2, jobname = paste0(EXP,"-",OUT,"_blockJK"), nodes = nrow(par.df2), cpus_per_node = 1,
+      sjob2 = slurm_apply(f = slurm_blockJK_twoStep_likelihood, params = par.df2, jobname = paste0(EXP,"_",OUT,"_blockJK"), nodes = nrow(par.df2), cpus_per_node = 1,
                           global_objects = c("betXY","pi1","sig1","w8s","m0","M","nX","nY","piU","piX","piY",
                                          "iX","iY","param","bn","bins","parscale2"),
                          slurm_options = list(partition = partition),
@@ -218,7 +223,7 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
   }
 
 
-  if(run_SingleStep){
+  if(StepNum==1){
     parscale1 = c(1e-4,1e-4,1e-1,1e-1,1e-1,1e-1,1e-1,1e-1,1e-1)
     assign(x="betXY", value=betXY, env=.GlobalEnv)
     assign(x="pi1", value=pi1, env=.GlobalEnv)
@@ -236,7 +241,7 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
 
     if(paral_method=="rslurm"){
       cat(print("Running optimisation"))
-      sjob = slurm_apply(f = slurm_pairTrait_singleStep_likelihood, params = par.df, jobname = paste0(EXP,"_",OUT), nodes = SP_pair, cpus_per_node = 1,
+      sjob = slurm_apply(f = slurm_pairTrait_singleStep_likelihood, params = par.df, jobname = paste0(EXP,"_",OUT,"_optim"), nodes = SP_pair, cpus_per_node = 1,
                          global_objects = c("betXY","pi1","sig1","w8s","m0","M","nX","nY","piU",
                                          "iX","iY","param","bn","bins","parscale1"),
                          slurm_options = list(partition = partition),
@@ -253,16 +258,16 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
           wait_counter = wait_counter
         }
       }
-
+      #Get output of minus log likelihood (mLL) and estimated parameters from rslurm in the form of a table with nrows equal to nrows(par.df)
       res_temp = get_slurm_out(sjob, outtype = 'table')
       res_values = as.data.frame(do.call(rbind, res_temp[[1]]))
       res_values %>%
-        mutate(h2X = abs(h2X),
+        dplyr::mutate(h2X = abs(h2X),
                h2Y = abs(h2Y),
                tX = abs(tX)) -> res_values
       res_values = cbind("SP"=c(1:nrow(res_values)),res_values,"iX"=iX,"iY"=iY)
 
-      write.csv(res_values, paste0("FullRes_",EXP,"-",OUT,".csv"), row.names = FALSE) ## Will be used to read new sp_mat
+      write.csv(res_values, paste0("FullRes_",EXP,"-",OUT,".csv"), row.names = FALSE)
 
       cleanup_files(sjob)
 
@@ -275,7 +280,7 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
       par.df2 = data.frame(par=I(apply(sp_mat2,1,as.list))) #generate a dataframe of lists for each row of parameters - input for rslurm
       par.df2 = merge(par.df2,JK_index)
 
-      sjob2 = slurm_apply(f = slurm_blockJK_singleStep_likelihood, params = par.df2, jobname = paste0(EXP,"-",OUT,"_blockJK"), nodes = nrow(par.df2), cpus_per_node = 1,
+      sjob2 = slurm_apply(f = slurm_blockJK_singleStep_likelihood, params = par.df2, jobname = paste0(EXP,"_",OUT,"_blockJK"), nodes = nrow(par.df2), cpus_per_node = 1,
                           global_objects = c("betXY","pi1","sig1","w8s","m0","M","nX","nY","piU",
                                           "iX","iY","param","bn","bins","parscale1"),
                           slurm_options = list(partition = partition),
@@ -443,8 +448,8 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
   res_est = res_values[which(res_values$mLL==min(res_values$mLL)),]
   res_est = unlist(dplyr::select(res_est, -c(SP,mLL,conv)))
   res_JKse = rep(NA,length(res_est))
-  if(run_SingleStep){res_JKse[1:length(JK_res$se_JK)] = JK_res$se_JK}
-  if(run_TwoStep){res_JKse[3:length(JK_res$se_JK)] = JK_res$se_JK}
+  if(StepNum == 1){res_JKse[1:length(JK_res$se_JK)] = JK_res$se_JK}
+  if(StepNum == 2){res_JKse[3:length(JK_res$se_JK)] = JK_res$se_JK}
   res_pval = 2*pnorm(-abs(res_est/res_JKse))
   res_tab = rbind(res_est,res_JKse,res_pval)
   rownames(res_tab)=c("Parameter estimates","SE-JK","Pval")

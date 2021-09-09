@@ -15,8 +15,13 @@
 #' @export
 #'
 #' @examples
-calculate_SP <- function(input.df,trait.names,log.file=NA,run_ldsc=TRUE,run_MR=TRUE,hm3,ld,run_SingleStep=FALSE,
-                         run_TwoStep=TRUE,SP_single=30,SP_pair=100,SNP_filter=10){
+calculate_SP <- function(input.df,trait.names,log.file=NA,run_ldsc=TRUE,run_MR=TRUE,hm3,ld,StepNum=2,
+                         SP_single=30,SP_pair=100,SNP_filter=10){
+
+  if(StepNum>2 || StepNum<1){
+    cat(print("Please choose 1 or 2 for the number of analysis steps"))
+    stop()
+  }
 
   EXP = trait.names[1]
   OUT = trait.names[2]

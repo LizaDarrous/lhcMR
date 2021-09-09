@@ -14,8 +14,7 @@ lhc_mr(
   piY = NA,
   SP_pair = 100,
   partition = NA,
-  run_SingleStep = FALSE,
-  run_TwoStep = TRUE,
+  StepNum = 2,
   paral_method = "rslurm",
   nBlock = 200,
   M = 1e+07

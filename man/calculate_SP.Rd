@@ -12,8 +12,7 @@ calculate_SP(
   run_MR = TRUE,
   hm3,
   ld,
-  run_SingleStep = FALSE,
-  run_TwoStep = TRUE,
+  StepNum = 2,
   SP_single = 30,
   SP_pair = 100,
   SNP_filter = 10
