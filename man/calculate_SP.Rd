@@ -12,10 +12,11 @@ calculate_SP(
   run_MR = TRUE,
   hm3,
   ld,
-  StepNum = 2,
-  SP_single = 30,
-  SP_pair = 100,
-  SNP_filter = 10
+  nStep = 2,
+  SP_single = 3,
+  SP_pair = 50,
+  SNP_filter = 10,
+  nCores = NA
 )
 }
 \arguments{

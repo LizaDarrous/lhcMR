@@ -23,15 +23,24 @@
 #' @importFrom MASS fitdistr
 #' @importFrom mixtools normalmixEM
 #' @importFrom stats cov median var
-#' @importFrom parallel mclapply
+#' @importFrom parallel mclapply detectCores
 #'
 #' @examples
-lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP_pair=100,partition=NA,StepNum=2,
-                  paral_method="rslurm",nBlock=200, M=1e7){
+lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP_pair=50,partition=NA,nStep=2,
+                  paral_method="rslurm",nCores=NA,nBlock=200, M=1e7){
 
-  if(StepNum>2 || StepNum<1){
+  if(nStep>2 || nStep<1){
     cat(print("Please choose 1 or 2 for the number of analysis steps"))
     stop()
+  }
+
+  if(is.na(nCores)){
+    nCores = floor((parallel::detectCores())/1.3)
+  } else {
+    if(nCores > parallel::detectCores()){
+      cat(print("Core number is chosen is greater than cores available"))
+      stop()
+    }
   }
 
   # generate a dataframe of lists for each row of parameters - input for rslurm/lapply
@@ -72,7 +81,7 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
   JK_index=cbind(start_ind,end_ind)
 
   # run analysis based on parallelisation method/number of steps
-  if(StepNum == 2){
+  if(nStep == 2){
     parscale2 = c(1e-1,1e-1,1e-1,1e-1,1e-1,1e-1,1e-1)
     assign(x="betXY", value=betXY, env=.GlobalEnv)
     assign(x="pi1", value=pi1, env=.GlobalEnv)
@@ -171,7 +180,7 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
                                      parscale = parscale2))
 
         list("mLL"=test$value,"par"=test$par,"conv"=test$convergence)
-      })
+      }, mc.cores = nCores)
 
       test.res = as.data.frame(t(matrix(unlist(test.res), nrow=length(unlist(test.res[1])))))
       colnames(test.res)=c("mLL", "h2X","h2Y","tX","tY","axy","ayx","iXY","conv")
@@ -207,7 +216,7 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
                                     parscale = parscale2))
 
         list("mLL"=test1$value,"par"=test1$par,"conv"=test1$convergence,"start_ind"=start_ind, "end_ind"=end_ind)
-      })
+      }, mc.cores = nCores)
 
       test.res1 = as.data.frame(t(matrix(unlist(test.res1), nrow=length(unlist(test.res1[1])))))
       colnames(test.res1)=c("mLL", "h2X","h2Y","tX","tY","axy","ayx","iXY","conv","start_ind", "end_ind")
@@ -224,7 +233,7 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
   }
 
 
-  if(StepNum==1){
+  if(nStep==1){
     parscale1 = c(1e-4,1e-4,1e-1,1e-1,1e-1,1e-1,1e-1,1e-1,1e-1)
     assign(x="betXY", value=betXY, env=.GlobalEnv)
     assign(x="pi1", value=pi1, env=.GlobalEnv)
@@ -325,7 +334,7 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
                                      parscale = parscale1))
 
         list("mLL"=test1$value,"par"=test1$par,"conv"=test1$convergence)
-      })
+      }, mc.cores = nCores)
 
       test.res = as.data.frame(t(matrix(unlist(test.res), nrow=length(unlist(test.res[1])))))
       colnames(test.res)=c("mLL","piX","piY","h2X","h2Y","tX","tY","axy","ayx","iXY","conv")
@@ -354,9 +363,6 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
         theta = unlist(x[1])
         start_ind = as.numeric(x[2])
         end_ind = as.numeric(x[3])
-        print(theta)
-        print(start_ind)
-        print(end_ind)
         test1 = optim(theta, pairTrait_singleStep_likelihood,
                       betXY=betXY[-(start_ind:end_ind),], pi1=pi1[-(start_ind:end_ind)], sig1=sig1[-(start_ind:end_ind)],
                       w8s=w8s[-(start_ind:end_ind)], pi_U=piU,
@@ -367,7 +373,7 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
                                      parscale = parscale1))
 
         list("mLL"=test1$value,"par"=test1$par,"conv"=test1$convergence,"start_ind"=start_ind, "end_ind"=end_ind)
-      })
+      }, mc.cores = nCores)
 
       test.res1 = as.data.frame(t(matrix(unlist(test.res1), nrow=length(unlist(test.res1[1])))))
       colnames(test.res1)=c("mLL","piX","piY","h2X","h2Y","tX","tY","axy","ayx","iXY","conv","start_ind", "end_ind")
@@ -449,8 +455,8 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
   res_est = res_values[which(res_values$mLL==min(res_values$mLL)),]
   res_est = unlist(dplyr::select(res_est, -c(SP,mLL,conv)))
   res_JKse = rep(NA,length(res_est))
-  if(StepNum == 1){res_JKse[1:length(JK_res$se_JK)] = JK_res$se_JK}
-  if(StepNum == 2){res_JKse[3:length(JK_res$se_JK)] = JK_res$se_JK}
+  if(nStep == 1){res_JKse[1:length(JK_res$se_JK)] = JK_res$se_JK}
+  if(nStep == 2){res_JKse[3:length(JK_res$se_JK)] = JK_res$se_JK}
   res_pval = 2*pnorm(-abs(res_est/res_JKse))
   res_tab = rbind(res_est,res_JKse,res_pval)
   rownames(res_tab)=c("Parameter estimates","SE-JK","Pval")

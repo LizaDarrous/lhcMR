@@ -11,18 +11,28 @@
 #'
 #' @importFrom dplyr slice select rename
 #' @importFrom stats optim
-#' @importFrom parallel mclapply
+#' @importFrom parallel mclapply detectCores
 #' @return
 #' @export
 #'
 #' @examples
-calculate_SP <- function(input.df,trait.names,log.file=NA,run_ldsc=TRUE,run_MR=TRUE,hm3,ld,StepNum=2,
-                         SP_single=30,SP_pair=100,SNP_filter=10){
+calculate_SP <- function(input.df,trait.names,log.file=NA,run_ldsc=TRUE,run_MR=TRUE,hm3,ld,nStep=2,
+                         SP_single=3,SP_pair=50,SNP_filter=10,nCores=NA){
 
-  if(StepNum>2 || StepNum<1){
+  if(nStep>2 || nStep<1){
     cat(print("Please choose 1 or 2 for the number of analysis steps"))
     stop()
   }
+
+  if(is.na(nCores)){
+    nCores = floor((parallel::detectCores())/1.3)
+  } else {
+    if(nCores > parallel::detectCores()){
+      cat(print("Core number is chosen is greater than cores available"))
+      stop()
+    }
+  }
+
 
   EXP = trait.names[1]
   OUT = trait.names[2]
@@ -73,7 +83,7 @@ calculate_SP <- function(input.df,trait.names,log.file=NA,run_ldsc=TRUE,run_MR=T
                     control = list(maxit = 5e3))
 
      list("mLL"=test1$value,"par"=test1$par,"conv"=test1$convergence)
-      })
+      }, mc.cores = nCores)
 
     test.exp = as.data.frame(t(matrix(unlist(test.exp), nrow=length(unlist(test.exp[1])))))
 
@@ -86,7 +96,7 @@ calculate_SP <- function(input.df,trait.names,log.file=NA,run_ldsc=TRUE,run_MR=T
                     control = list(maxit = 5e3))
 
       list("mLL"=test1$value,"par"=test1$par,"conv"=test1$convergence)
-    })
+    }, mc.cores = nCores)
 
     test.out = as.data.frame(t(matrix(unlist(test.out), nrow=length(unlist(test.out[1])))))
 
@@ -107,7 +117,7 @@ calculate_SP <- function(input.df,trait.names,log.file=NA,run_ldsc=TRUE,run_MR=T
 
 
   ## generate the rest of the starting points depending on TwoStep vs SingleStep
-  if(StepNum==2){
+  if(nStep==2){
     sp_tX = runif(SP_pair,0,0.5)
     sp_tY = runif(SP_pair,-0.5,0.5)
     sp_h2X = max(0,h2_x-(sp_tX^2))
@@ -124,7 +134,7 @@ calculate_SP <- function(input.df,trait.names,log.file=NA,run_ldsc=TRUE,run_MR=T
     return(list("iX"=i_X,"iY"=i_Y,"piX"=pi_X,"piY"=pi_Y,"input.df_filtered"=input.df_filtered,"sp_mat"=sp_mat1))
   }
 
-  if(StepNum==1){
+  if(nStep==1){
     sp_piX = runif(SP_pair,0,1e-4) #rep(pi_X,SP_pair)
     sp_piY = runif(SP_pair,0,1e-4) #rep(pi_Y,SP_pair)
     sp_tX = runif(SP_pair,0,0.5)

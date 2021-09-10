@@ -12,10 +12,11 @@ lhc_mr(
   iY,
   piX = NA,
   piY = NA,
-  SP_pair = 100,
+  SP_pair = 50,
   partition = NA,
-  StepNum = 2,
+  nStep = 2,
   paral_method = "rslurm",
+  nCores = NA,
   nBlock = 200,
   M = 1e+07
 )
