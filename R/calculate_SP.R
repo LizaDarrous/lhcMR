@@ -106,7 +106,7 @@ calculate_SP <- function(input.df,trait.names,log.file=NA,run_ldsc=TRUE,run_MR=T
 
 
   ## generate the rest of the starting points depending on TwoStep vs SingleStep
-  if(run_TwoStep==TRUE){
+  if(StepNum==2){
     sp_tX = runif(SP_pair,0,0.5)
     sp_tY = runif(SP_pair,-0.5,0.5)
     sp_h2X = max(0,h2_x-(sp_tX^2))
@@ -123,7 +123,7 @@ calculate_SP <- function(input.df,trait.names,log.file=NA,run_ldsc=TRUE,run_MR=T
     return(list("iX"=i_X,"iY"=i_Y,"piX"=pi_X,"piY"=pi_Y,"input.df_filtered"=input.df_filtered,"sp_mat"=sp_mat1))
   }
 
-  if(run_SingleStep==TRUE){
+  if(StepNum==1){
     sp_piX = runif(SP_pair,0,1e-4) #rep(pi_X,SP_pair)
     sp_piY = runif(SP_pair,0,1e-4) #rep(pi_Y,SP_pair)
     sp_tX = runif(SP_pair,0,0.5)
