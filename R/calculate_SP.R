@@ -11,6 +11,7 @@
 #'
 #' @importFrom dplyr slice select rename
 #' @importFrom stats optim
+#' @importFrom parallel mclapply
 #' @return
 #' @export
 #'
@@ -63,7 +64,7 @@ calculate_SP <- function(input.df,trait.names,log.file=NA,run_ldsc=TRUE,run_MR=T
     test.exp = matrix(NA,nrow=SP_single,ncol=5)
     test.out = matrix(NA,nrow=SP_single,ncol=5)
 
-    test.exp <- lapply(par.df[[1]], function(x) {
+    test.exp <- parallel::mclapply(par.df[[1]], function(x) {
       theta = unlist(x)
       test1 = optim(theta, singleTrait_likelihood,
                     betX=bX, pi1=pi1, sig1=sig1, w8s=w8s,
@@ -76,7 +77,7 @@ calculate_SP <- function(input.df,trait.names,log.file=NA,run_ldsc=TRUE,run_MR=T
 
     test.exp = as.data.frame(t(matrix(unlist(test.exp), nrow=length(unlist(test.exp[1])))))
 
-    test.out <- lapply(par.df[[1]], function(x) {
+    test.out <- parallel::mclapply(par.df[[1]], function(x) {
       theta = unlist(x)
       test1 = optim(theta, singleTrait_likelihood,
                     betX=bY, pi1=pi1, sig1=sig1, w8s=w8s,

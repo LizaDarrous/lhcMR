@@ -23,6 +23,7 @@
 #' @importFrom MASS fitdistr
 #' @importFrom mixtools normalmixEM
 #' @importFrom stats cov median var
+#' @importFrom parallel mclapply
 #'
 #' @examples
 lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP_pair=100,partition=NA,StepNum=2,
@@ -159,7 +160,7 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
 
     if(paral_method=="lapply"){
       cat(print("Running optimisation"))
-      test.res <- lapply(par.df[[1]], function(x) {
+      test.res <- parallel:mclapply(par.df[[1]], function(x) {
         theta = unlist(x)
         test = optim(theta, pairTrait_twoStep_likelihood,
                       betX=betXY, pi1=pi1, sig1=sig1, w8s=w8s,
@@ -192,7 +193,7 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
       par.df2 = data.frame(par=I(apply(sp_mat2,1,as.list))) #generate a dataframe of lists for each row of parameters - input for rslurm
       par.df2 = merge(par.df2,JK_index)
 
-      test.res1 <- lapply(split(par.df2,1:nrow(par.df2)), function(x) {
+      test.res1 <- parallel:mclapply(split(par.df2,1:nrow(par.df2)), function(x) {
         theta = unlist(x[1])
         start_ind = as.numeric(x[2])
         end_ind = as.numeric(x[3])
@@ -313,7 +314,7 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
 
     if(paral_method=="lapply"){
       cat(print("Running optimisation"))
-      test.res <- lapply(par.df[[1]], function(x) {
+      test.res <- parallel:mclapply(par.df[[1]], function(x) {
         theta = unlist(x)
         test1 = optim(theta, pairTrait_singleStep_likelihood,
                       betX=betXY, pi1=pi1, sig1=sig1, w8s=w8s,
@@ -349,7 +350,7 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
       par.df2 = data.frame(par=I(apply(sp_mat2,1,as.list))) #generate a dataframe of lists for each row of parameters - input for rslurm
       par.df2 = merge(par.df2,JK_index)
 
-      test.res1 <- lapply(split(par.df2,1:nrow(par.df2)), function(x) {
+      test.res1 <- parallel:mclapply(split(par.df2,1:nrow(par.df2)), function(x) {
         theta = unlist(x[1])
         start_ind = as.numeric(x[2])
         end_ind = as.numeric(x[3])
