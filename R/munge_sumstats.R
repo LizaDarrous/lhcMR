@@ -22,7 +22,7 @@ munge_sumstats <- function(input.files,trait.names){
     file = input.files[[i]]
     Xcols = toupper(names(file))
     namesX = Xcols
-    ## RSID
+    #RSID
     if("RSID" %in% Xcols){cat(print(paste0("Interpreting the RSID column as the SNP column in ",trait.names[i],".")),file=log.file,sep="\n",append=TRUE)
     }else{
       Xcols[Xcols %in% c("SNP","SNPID","RS_NUMBER","RS_NUMBERS", "MARKERNAME", "ID","PREDICTOR","SNP_ID","RS")] <- "RSID"

@@ -30,7 +30,7 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
                   paral_method="rslurm",nCores=NA,nBlock=200, M=1e7){
 
   if(nStep>2 || nStep<1){
-    cat(print("Please choose 1 or 2 for the number of analysis steps"))
+    cat(print("Please choose 1 or 2 for the number of analysis steps\n"))
     stop()
   }
 
@@ -38,29 +38,29 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
     nCores = floor((parallel::detectCores())/1.3)
   } else {
     if(nCores > parallel::detectCores()){
-      cat(print("Core number is chosen is greater than cores available"))
+      cat(print("Core number chosen is greater than cores available\n"))
       stop()
     }
   }
 
-  # generate a dataframe of lists for each row of parameters - input for rslurm/lapply
+  # Generate a dataframe of lists for each row of parameters - input for rslurm/lapply
   par.df = data.frame(par=I(apply(SP_matrix,1,as.list)))
 
-  # parameters set up
+  # Parameters set-up
   piU=0.1
   bn = 2^7
   bins = 10
-  param="comp"
+  param="comp" #possibility to develop nesting in later version
   EXP = trait.names[1]
   OUT = trait.names[2]
 
-  # data set up
-  nX = mean(input.df_filtered$N.x)  #Get sample size for trait X
-  nY = mean(input.df_filtered$N.y)  #Get sample size for trait Y
-  m0 = mean(input.df_filtered$M_LOCAL) ##Get number of SNPs used to calculate the local LD
+  # Data set up
+  nX = mean(input.df_filtered$N.x)  #get sample size for trait X
+  nY = mean(input.df_filtered$N.y)  #get sample size for trait Y
+  m0 = mean(input.df_filtered$M_LOCAL) #get number of SNPs used to calculate the local LD
 
-  bX = input.df_filtered$TSTAT.x/sqrt(nX)   #Get standardised beta for trait X
-  bY = input.df_filtered$TSTAT.y/sqrt(nY)   #Get standardised beta for trait Y
+  bX = input.df_filtered$TSTAT.x/sqrt(nX)   #get standardised beta for trait X
+  bY = input.df_filtered$TSTAT.y/sqrt(nY)   #get standardised beta for trait Y
   betXY = cbind(bX,bY)
 
   ld = input.df_filtered$LDSC
@@ -68,7 +68,7 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
   pi1 = input.df_filtered$PIK
   sig1 = input.df_filtered$SIGK
 
-  # generate a data frame of positions for block JK - used for SP generation
+  # Generate a data frame of positions for block JK - used for SP generation
   uniqPos = seq(1:nrow(input.df_filtered))
   nBlock = nBlock
   nSNP = nrow(betXY) %/% nBlock
@@ -80,7 +80,7 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
 
   JK_index=cbind(start_ind,end_ind)
 
-  # run analysis based on parallelisation method/number of steps
+  # Run analysis based on parallelisation method//number of steps
   if(nStep == 2){
     parscale2 = c(1e-1,1e-1,1e-1,1e-1,1e-1,1e-1,1e-1)
     assign(x="betXY", value=betXY, env=.GlobalEnv)
@@ -97,7 +97,6 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
     assign(x="bins", value=bins, env=.GlobalEnv)
     assign(x="parscale2", value=parscale2, env=.GlobalEnv)
 
-#    utils::globalVariables(c("betXY", "pi1", "sig1", "m0", "M", "nX", "nY", "piU", "param", "bn", "bins", "parscale"))
     if(paral_method=="rslurm"){
       cat(print("Running optimisation"))
       sjob = slurm_apply(f = slurm_pairTrait_twoStep_likelihood, params = par.df, jobname = paste0(EXP,"_",OUT,"_optim"), nodes = SP_pair, cpus_per_node = 1,
@@ -105,19 +104,17 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
                                          "iX","iY","param","bn","bins","parscale2"),
                          slurm_options = list(partition = partition),
                          submit = TRUE)
-      #Keep a loop open till the job is completely done.
+      # Keep a loop open till the job is completely done.
       wait_counter = 0
       while (wait_counter < 1) {
         wait_counter = 0
-        #if (tryCatch(stringr::str_detect(lhcMR::get_job_status(sjob2),"completed"), warning = function(w){FALSE},
-        #             error = function(e){FALSE})) {
         if(get_job_status_lhc(sjob)){
           wait_counter = wait_counter + 1
         } else{
           wait_counter = wait_counter
         }
       }
-      #Get output of minus log likelihood (mLL) and estimated parameters from rslurm in the form of a table with nrows equal to nrows(par.df)
+      # Get output of minus log likelihood (mLL) and estimated parameters from rslurm in the form of a table with nrows equal to nrows(par.df)
       res_temp = get_slurm_out(sjob, outtype = 'table')
       res_values = as.data.frame(do.call(rbind, res_temp[[1]]))
       res_values %>%
@@ -129,13 +126,13 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
 
       cleanup_files(sjob)
 
-      ## running blockJK
+      # Running blockJK
       cat(print("Running block JK"))
       res_ordered = res_values[order(res_values$mLL, decreasing = F),]
       sp_mat2 = dplyr::select(res_ordered,h2X,h2Y,tX,tY,axy,ayx,iXY)
       sp_mat2 = sp_mat2[1,]
 
-      par.df2 = data.frame(par=I(apply(sp_mat2,1,as.list))) #generate a dataframe of lists for each row of parameters - input for rslurm
+      par.df2 = data.frame(par=I(apply(sp_mat2,1,as.list)))
       par.df2 = merge(par.df2,JK_index)
 
       sjob2 = slurm_apply(f = slurm_blockJK_twoStep_likelihood, params = par.df2, jobname = paste0(EXP,"_",OUT,"_blockJK"), nodes = nrow(par.df2), cpus_per_node = 1,
@@ -143,12 +140,10 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
                                          "iX","iY","param","bn","bins","parscale2"),
                          slurm_options = list(partition = partition),
                          submit = TRUE)
-      #Keep a loop open till the job is completely done.
+      # Keep a loop open till the job is completely done.
       wait_counter = 0
       while (wait_counter < 1) {
         wait_counter = 0
-        #if (tryCatch(stringr::str_detect(lhcMR::get_job_status(sjob2),"completed"), warning = function(w){FALSE},
-        #             error = function(e){FALSE})) {
         if(get_job_status_lhc(sjob2)){
           wait_counter = wait_counter + 1
         } else{
@@ -163,7 +158,9 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
                h2Y = abs(h2Y),
                tX = abs(tX)) -> res_values2
 
-      write.csv(res_values2, paste0("FullRes_",EXP,"-",OUT,"_blockJK.csv"), row.names = FALSE)
+      write.csv(res_values2, paste0("FullRes_",EXP,"-",OUT,"_",nBlock,"blockJK.csv"), row.names = FALSE)
+
+      cleanup_files(sjob2)
 
     }
 
@@ -186,20 +183,20 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
       colnames(test.res)=c("mLL", "h2X","h2Y","tX","tY","axy","ayx","iXY","conv")
 
       test.res %>%
-        mutate(h2X = abs(h2X),
+        dplyr::mutate(h2X = abs(h2X),
                h2Y = abs(h2Y),
                tX = abs(tX)) -> res_values
 
       res_values = cbind("SP"=c(1:nrow(res_values)),"mLL"=res_values[,1],"piX"=piX,"piY"=piY,res_values[,-1],"iX"=iX,"iY"=iY)
-      write.csv(res_values, paste0("FullRes_",EXP,"-",OUT,".csv"), row.names = FALSE) ## Will be used to read new sp_mat
+      write.csv(res_values, paste0("FullRes_",EXP,"-",OUT,".csv"), row.names = FALSE)
 
-      ## running blockJK
+      # Running blockJK
       cat(print("Running block JK"))
       res_ordered = res_values[order(res_values$mLL, decreasing = F),]
       sp_mat2 = dplyr::select(res_ordered,h2X,h2Y,tX,tY,axy,ayx,iXY)
       sp_mat2 = sp_mat2[1,]
 
-      par.df2 = data.frame(par=I(apply(sp_mat2,1,as.list))) #generate a dataframe of lists for each row of parameters - input for rslurm
+      par.df2 = data.frame(par=I(apply(sp_mat2,1,as.list)))
       par.df2 = merge(par.df2,JK_index)
 
       test.res1 <- parallel::mclapply(split(par.df2,1:nrow(par.df2)), function(x) {
@@ -222,11 +219,11 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
       colnames(test.res1)=c("mLL", "h2X","h2Y","tX","tY","axy","ayx","iXY","conv","start_ind", "end_ind")
 
       test.res1 %>%
-        mutate(h2X = abs(h2X),
+        dplyr::mutate(h2X = abs(h2X),
                h2Y = abs(h2Y),
                tX = abs(tX)) -> res_values2
 
-      write.csv(res_values2, paste0("FullRes_",EXP,"-",OUT,"_blockJK.csv"), row.names = FALSE)
+      write.csv(res_values2, paste0("FullRes_",EXP,"-",OUT,"_",nBlock,"blockJK.csv"), row.names = FALSE)
 
     }
 
@@ -256,19 +253,17 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
                                          "iX","iY","param","bn","bins","parscale1"),
                          slurm_options = list(partition = partition),
                          submit = TRUE)
-      #Keep a loop open till the job is completely done.
+      # Keep a loop open till the job is completely done.
       wait_counter = 0
       while (wait_counter < 1) {
         wait_counter = 0
-        #if (tryCatch(stringr::str_detect(lhcMR::get_job_status(sjob2),"completed"), warning = function(w){FALSE},
-        #             error = function(e){FALSE})) {
         if(get_job_status_lhc(sjob)){
           wait_counter = wait_counter + 1
         } else{
           wait_counter = wait_counter
         }
       }
-      #Get output of minus log likelihood (mLL) and estimated parameters from rslurm in the form of a table with nrows equal to nrows(par.df)
+      # Get output of minus log likelihood (mLL) and estimated parameters from rslurm in the form of a table with nrows equal to nrows(par.df)
       res_temp = get_slurm_out(sjob, outtype = 'table')
       res_values = as.data.frame(do.call(rbind, res_temp[[1]]))
       res_values %>%
@@ -281,13 +276,13 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
 
       cleanup_files(sjob)
 
-      ## running blockJK
+      # Running blockJK
       cat(print("Running block JK"))
       res_ordered = res_values[order(res_values$mLL, decreasing = F),]
       sp_mat2 = dplyr::select(res_ordered,piX,piY,h2X,h2Y,tX,tY,axy,ayx,iXY)
       sp_mat2 = sp_mat2[1,]
 
-      par.df2 = data.frame(par=I(apply(sp_mat2,1,as.list))) #generate a dataframe of lists for each row of parameters - input for rslurm
+      par.df2 = data.frame(par=I(apply(sp_mat2,1,as.list)))
       par.df2 = merge(par.df2,JK_index)
 
       sjob2 = slurm_apply(f = slurm_blockJK_singleStep_likelihood, params = par.df2, jobname = paste0(EXP,"_",OUT,"_blockJK"), nodes = nrow(par.df2), cpus_per_node = 1,
@@ -295,12 +290,10 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
                                           "iX","iY","param","bn","bins","parscale1"),
                           slurm_options = list(partition = partition),
                           submit = TRUE)
-      #Keep a loop open till the job is completely done.
+      # Keep a loop open till the job is completely done.
       wait_counter = 0
       while (wait_counter < 1) {
         wait_counter = 0
-        #if (tryCatch(stringr::str_detect(lhcMR::get_job_status(sjob2),"completed"), warning = function(w){FALSE},
-        #             error = function(e){FALSE})) {
         if(get_job_status_lhc(sjob2)){
           wait_counter = wait_counter + 1
         } else{
@@ -317,7 +310,9 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
                h2Y = abs(h2Y),
                tX = abs(tX)) -> res_values2
 
-      write.csv(res_values2, paste0("FullRes_",EXP,"-",OUT,"_blockJK.csv"), row.names = FALSE)
+      write.csv(res_values2, paste0("FullRes_",EXP,"-",OUT,"_",nBlock,"blockJK.csv"), row.names = FALSE)
+
+      cleanup_files(sjob2)
 
     }
 
@@ -325,7 +320,7 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
       cat(print("Running optimisation"))
       test.res <- parallel::mclapply(par.df[[1]], function(x) {
         theta = unlist(x)
-        test1 = optim(theta, pairTrait_singleStep_likelihood,
+        test = optim(theta, pairTrait_singleStep_likelihood,
                       betX=betXY, pi1=pi1, sig1=sig1, w8s=w8s,
                       m0=m0, nX=nX, nY=nY, pi_U=piU, i_X=iX, i_Y=iY,
                       bn=2^7, bins=10,
@@ -333,7 +328,7 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
                       control = list(maxit = 5e3,
                                      parscale = parscale1))
 
-        list("mLL"=test1$value,"par"=test1$par,"conv"=test1$convergence)
+        list("mLL"=test$value,"par"=test$par,"conv"=test$convergence)
       }, mc.cores = nCores)
 
       test.res = as.data.frame(t(matrix(unlist(test.res), nrow=length(unlist(test.res[1])))))
@@ -350,13 +345,13 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
       res_values = cbind("SP"=c(1:nrow(res_values)),res_values,"iX"=iX,"iY"=iY)
       write.csv(res_values, paste0("FullRes_",EXP,"-",OUT,".csv"), row.names = FALSE)
 
-      ## running blockJK
+      # Running blockJK
       cat(print("Running block JK"))
       res_ordered = res_values[order(res_values$mLL, decreasing = F),]
       sp_mat2 = dplyr::select(res_ordered,piX,piY,h2X,h2Y,tX,tY,axy,ayx,iXY)
       sp_mat2 = sp_mat2[1,]
 
-      par.df2 = data.frame(par=I(apply(sp_mat2,1,as.list))) #generate a dataframe of lists for each row of parameters - input for rslurm
+      par.df2 = data.frame(par=I(apply(sp_mat2,1,as.list)))
       par.df2 = merge(par.df2,JK_index)
 
       test.res1 <- parallel::mclapply(split(par.df2,1:nrow(par.df2)), function(x) {
@@ -379,19 +374,19 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
       colnames(test.res1)=c("mLL","piX","piY","h2X","h2Y","tX","tY","axy","ayx","iXY","conv","start_ind", "end_ind")
 
       test.res1 %>%
-        mutate(piX = abs(piX),
+        dplyr::mutate(piX = abs(piX),
                piY = abs(piY),
                h2X = abs(h2X),
                h2Y = abs(h2Y),
                tX = abs(tX)) -> res_values2
 
-      write.csv(res_values2, paste0("FullRes_",EXP,"-",OUT,"_blockJK.csv"), row.names = FALSE)
+      write.csv(res_values2, paste0("FullRes_",EXP,"-",OUT,"_",nBlock,"blockJK.csv"), row.names = FALSE)
 
     }
 
   }
 
-### blockJK analysis regardless of method - one step or two step
+# BlockJK analysis regardless of method - one step or two step
   res_min2 = res_values2
 
   res_minFil = dplyr::select(as.data.frame(res_min2), -c(mLL,conv,start_ind,end_ind))
@@ -445,13 +440,13 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
   JK_res$bimod = "FALSE"
   JK_res$bimod[bimo] = "TRUE"
 
-  write.csv(JK_res,paste0("JKres_",nBlock,"_",EXP,"-",OUT,".csv"), row.names = F)
+  write.csv(JK_res,paste0(nBlock,"blockJK_summary_",EXP,"-",OUT,".csv"), row.names = F)
 
   cov_matrix = cov(res_minFil)
-  write.csv(cov_matrix,paste0("VarCovMatrix_",EXP,"-",OUT,".csv"))
+  write.csv(cov_matrix,paste0(nBlock,"blockJK_VarCovMatrix_",EXP,"-",OUT,".csv"))
   print("Done!")
 
-  ## print out results in tab format
+  # Print out results in table format
   res_est = res_values[which(res_values$mLL==min(res_values$mLL)),]
   res_est = unlist(dplyr::select(res_est, -c(SP,mLL,conv)))
   res_JKse = rep(NA,length(res_est))

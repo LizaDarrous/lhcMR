@@ -20,7 +20,7 @@ calculate_SP <- function(input.df,trait.names,log.file=NA,run_ldsc=TRUE,run_MR=T
                          SP_single=3,SP_pair=50,SNP_filter=10,nCores=NA){
 
   if(nStep>2 || nStep<1){
-    cat(print("Please choose 1 or 2 for the number of analysis steps"))
+    cat(print("Please choose 1 or 2 for the number of analysis steps\n"))
     stop()
   }
 
@@ -28,7 +28,7 @@ calculate_SP <- function(input.df,trait.names,log.file=NA,run_ldsc=TRUE,run_MR=T
     nCores = floor((parallel::detectCores())/1.3)
   } else {
     if(nCores > parallel::detectCores()){
-      cat(print("Core number is chosen is greater than cores available"))
+      cat(print("Core number chosen is greater than cores available\n"))
       stop()
     }
   }
@@ -37,24 +37,23 @@ calculate_SP <- function(input.df,trait.names,log.file=NA,run_ldsc=TRUE,run_MR=T
   EXP = trait.names[1]
   OUT = trait.names[2]
 
-  ## get estimates of starting points from LDSC and standard MR method (IVW)
+  # Get estimates of starting points from LDSC and standard MR method (IVW)
   SP = gettingSP_ldscMR(input.df,trait.names,log.file,run_ldsc,run_MR,hm3,ld)
   i_XY = as.numeric(SP[[1]])
   axy_MR = as.numeric(SP[[2]])
   ayx_MR = as.numeric(SP[[3]])
 
-  ## for LHC single step analysis we reduce the number of SNPs for faster computation
+  # For LHC single step analysis we reduce the number of SNPs for faster computation
   input.df %>%
     slice(seq(1, nrow(input.df), by=SNP_filter)) -> input.df_filtered
-  nrow(input.df_filtered)
-  # 468,993
+  #nrow(input.df_filtered)
 
-  nX = mean(input.df_filtered$N.x)  #Get sample size for trait X
-  nY = mean(input.df_filtered$N.y)  #Get sample size for trait Y
-  m0 = mean(input.df_filtered$M_LOCAL) ##Get number of SNPs used to calculate the local LD
+  nX = mean(input.df_filtered$N.x)  #get sample size for trait X
+  nY = mean(input.df_filtered$N.y)  #get sample size for trait Y
+  m0 = mean(input.df_filtered$M_LOCAL) #get number of SNPs used to calculate the local LD
 
-  bX = input.df_filtered$TSTAT.x/sqrt(nX)   #Get standardised beta for trait X
-  bY = input.df_filtered$TSTAT.y/sqrt(nY)   #Get standardised beta for trait Y
+  bX = input.df_filtered$TSTAT.x/sqrt(nX)   #get standardised beta for trait X
+  bY = input.df_filtered$TSTAT.y/sqrt(nY)   #get standardised beta for trait Y
 
   ld = input.df_filtered$LDSC
   w8s = input.df_filtered$WEIGHT
@@ -65,7 +64,7 @@ calculate_SP <- function(input.df,trait.names,log.file=NA,run_ldsc=TRUE,run_MR=T
   sp_h2X = runif(SP_single,0,0.5)
   sp_iX = runif(SP_single,0.5,1.5)
 
-  ## Get piX, iX (and total_h2) in a separate step - single trait analysis for X and Y
+  # Get piX, iX (and total_h2) in a separate step - single trait analysis for X and Y
     para=cbind(sp_piX,sp_h2X,sp_iX)
     sp_mat=matrix(unlist(para), ncol=3, byrow = FALSE)
     colnames(sp_mat)=colnames(para)
@@ -107,7 +106,7 @@ calculate_SP <- function(input.df,trait.names,log.file=NA,run_ldsc=TRUE,run_MR=T
     res_out_min = test.out[which(test.out$mLL == min(test.out$mLL)), ]
     res_out = abs(res_out_min[2:4])
 
-  ## get fixed points due to single trait analysis estimate
+  # Get fixed points due to single trait analysis estimate
   pi_X = as.numeric(res_exp[1])
   pi_Y = as.numeric(res_out[1])
   h2_x = as.numeric(res_exp[2]) #total heritability, not used
@@ -116,7 +115,7 @@ calculate_SP <- function(input.df,trait.names,log.file=NA,run_ldsc=TRUE,run_MR=T
   i_Y = as.numeric(res_out[3])
 
 
-  ## generate the rest of the starting points depending on TwoStep vs SingleStep
+  # Generate the rest of the starting points depending on TwoStep vs SingleStep
   if(nStep==2){
     sp_tX = runif(SP_pair,0,0.5)
     sp_tY = runif(SP_pair,-0.5,0.5)

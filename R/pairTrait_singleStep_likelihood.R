@@ -24,7 +24,7 @@ pairTrait_singleStep_likelihood <- function(theta,betXY,pi1,sig1,w8s,m0,pi_U=0.1
 
   M = M #1e7
   piX = abs(theta[1]);
-  piU = pi_U # piU is unidentifiable
+  piU = pi_U #piU is unidentifiable
   piY = abs(theta[2]);
   h2X = abs(theta[3]);
   h2Y = abs(theta[4]);
@@ -81,7 +81,7 @@ pairTrait_singleStep_likelihood <- function(theta,betXY,pi1,sig1,w8s,m0,pi_U=0.1
 
 
   sigX = sqrt(h2X/(piX*M))
-  sigU = sqrt(1/(piU*M)); # h2U = 1
+  sigU = sqrt(1/(piU*M)); #h2U = 1
   sigY = sqrt(h2Y/(piY*M))
 
   m = nrow(betXY)
@@ -173,7 +173,7 @@ pairTrait_singleStep_likelihood <- function(theta,betXY,pi1,sig1,w8s,m0,pi_U=0.1
     pfE = FFT0[ixF];
     selu = which(pfE>0);
     pfE = pfE[selu];
-    my_w8s = w8s[selu]  # update weights vector if some SNPs are excluded
+    my_w8s = w8s[selu]  #update weights vector if some SNPs are excluded
     nmiss = length(selu);
 
     lpfE = log(pfE);

@@ -18,11 +18,11 @@ gettingSP_ldscMR = function(input.df,trait.names,log.file,run_ldsc=TRUE,run_MR=T
 
   EXP = trait.names[1]
   OUT = trait.names[2]
-  nX = mean(input.df$N.x)  #Get sample size for trait X
-  nY = mean(input.df$N.y)  #Get sample size for trait Y
+  nX = mean(input.df$N.x)  #get sample size for trait X
+  nY = mean(input.df$N.y)  #get sample size for trait Y
 
-  bX = input.df$TSTAT.x/sqrt(nX)   #Get standardised beta for trait X
-  bY = input.df$TSTAT.y/sqrt(nY)   #Get standardised beta for trait Y
+  bX = input.df$TSTAT.x/sqrt(nX)   #get standardised beta for trait X
+  bY = input.df$TSTAT.y/sqrt(nY)   #get standardised beta for trait Y
 
   X = select(input.df, RSID, CHR, A1, A2, BETA.x, SE.x, PVAL.x, TSTAT.x, N.x) %>% rename(unstdb = BETA.x, sderr = SE.x, pval = PVAL.x, TSTAT=TSTAT.x, N = N.x)
   Y = select(input.df, RSID, CHR, A1, A2, BETA.y, SE.y, PVAL.y, TSTAT.y, N.y) %>% rename(unstdb = BETA.y, sderr = SE.y, pval = PVAL.y, TSTAT=TSTAT.y, N = N.y)
@@ -32,7 +32,7 @@ gettingSP_ldscMR = function(input.df,trait.names,log.file,run_ldsc=TRUE,run_MR=T
   Y$SE = 1/sqrt(nY)
 
   if(run_ldsc){
-    # slice, every 10th SNP for faster computation
+    # Slice, every 10th SNP for faster computation
     X %>%
       slice(seq(1, nrow(X), by=10)) -> X_filtered
     #nrow(X_filtered)
@@ -54,8 +54,8 @@ gettingSP_ldscMR = function(input.df,trait.names,log.file,run_ldsc=TRUE,run_MR=T
     cat("Please check the log files", paste0(EXP, "_munge.log and ", OUT, "_munge.log" ),  "to ensure that all columns were interpreted correctly and no warnings were issued for any of the summary statistics files\n")
 
     traits = c(paste0(EXP, ".sumstats.gz"), paste0(OUT, ".sumstats.gz"))
-    sample.prev <- c(NA,NA) # continuous traits
-    population.prev <- c(NA,NA) # continuous traits
+    sample.prev <- c(NA,NA) #continuous traits
+    population.prev <- c(NA,NA) #continuous traits
 
     trait.names<-c(EXP, OUT)
     invisible(utils::capture.output(LDSCoutput <- GenomicSEM::ldsc(traits,
@@ -78,10 +78,10 @@ gettingSP_ldscMR = function(input.df,trait.names,log.file,run_ldsc=TRUE,run_MR=T
   } else {i_XY = runif(1,-0.2,0.2)}
 
 
-  ### Running standard MR
+  # Running standard MR
   if(run_MR){
     MR_output = paste0(EXP,"-",OUT,"_MRresults.csv")
-    ## Get significant SNPs above certain Z-statistic corresponding to set p-value
+    # Get significant SNPs above certain Z-statistic corresponding to set p-value
     prune_X = function(zX,p_limit=1e-5){
       zX=zX
       z_limit=abs(qnorm(0.5*p_limit))
@@ -91,7 +91,7 @@ gettingSP_ldscMR = function(input.df,trait.names,log.file,run_ldsc=TRUE,run_MR=T
       return(ind_keep)
     }
 
-    ## Taken from Jonathan Sulc to create bins that fit a maximum of 50k SNPs (max threshold for clumping)
+    # Taken from Jonathan Sulc to create bins that fit a maximum of 50k SNPs (max threshold for clumping)
     snp_bin  =  function( snp_ranks,
                           chunk_size = 50000 ){
       if (nrow( snp_ranks ) == 0) {
@@ -116,12 +116,12 @@ gettingSP_ldscMR = function(input.df,trait.names,log.file,run_ldsc=TRUE,run_MR=T
                           chunk_size ) ) )
     }
 
-    # Set values
+    # Set threshold values
     pval=2*pnorm(-abs(5.45))
     pval1=2*pnorm(-abs(4))
     reverse_t_threshold  =  qnorm( 5e-2 )
 
-    ### Forward
+    # Forward MR estimation
     mr_dataX = cbind.data.frame(SNP = X$RSID, beta = X$BETA, se = X$SE, effect_allele = X$A1, other_allele = X$A2, chr=X$CHR, Phenotype=EXP, tstat=X$TSTAT )
     mr_dataY = cbind.data.frame(SNP = Y$RSID, beta = Y$BETA, se = Y$SE, effect_allele = Y$A1, other_allele = Y$A2, chr=Y$CHR, Phenotype=OUT, tstat=Y$TSTAT )
 
@@ -134,17 +134,15 @@ gettingSP_ldscMR = function(input.df,trait.names,log.file,run_ldsc=TRUE,run_MR=T
     mr_dataX = mr_dataX[mr_ind,]
     mr_dataY = mr_dataY[mr_ind,]
 
-    # remove SNPs that are more strongly associated with the outcome than the exposure
-    #filter( ( beta.exposure - beta.outcome ) / sqrt( se.exposure^2 + se.outcome^2 ) > reverse_t_threshold ) %>%
+    # Remove SNPs that are more strongly associated with the outcome than the exposure
     ind_keep=which((abs(mr_dataX$beta)-abs(mr_dataY$beta))/sqrt(mr_dataX$se^2+mr_dataY$se^2) > reverse_t_threshold)
     print(length(ind_keep))
     mr_dataX = mr_dataX[ind_keep,]
     mr_dataY = mr_dataY[ind_keep,]
 
-    exp_dat <- TwoSampleMR::format_data(mr_dataX, type="exposure")  ##same rows as mr_dataX
+    exp_dat <- TwoSampleMR::format_data(mr_dataX, type="exposure")  #same rows as mr_dataX
     clump_bin = snp_bin(mr_dataX,50000)
 
-    #exp_dat2 <- clump_data(exp_dat)
     exp_data = c()
     for (x in 1:length(clump_bin)) {
       temp = exp_dat[exp_dat$SNP %in% clump_bin[[x]]$SNP,]
@@ -177,7 +175,7 @@ gettingSP_ldscMR = function(input.df,trait.names,log.file,run_ldsc=TRUE,run_MR=T
       exp_dat2[swapped,'beta.exposure']=exp_dat2[swapped,'beta.exposure']*-1
       exp_dat2 = exp_dat2[c(aligned,swapped),]
       out_dat2 = out_dat2[c(aligned,swapped),]
-      action = 1  ## made sure all strands are okay
+      action = 1  #made sure all strands are okay
     }
     # Harmonise the exposure and outcome data
     dat <- TwoSampleMR::harmonise_data(
@@ -185,7 +183,7 @@ gettingSP_ldscMR = function(input.df,trait.names,log.file,run_ldsc=TRUE,run_MR=T
       outcome_dat = out_dat2, action = action
     )
 
-    #Sensitivity - Q-test
+    # Sensitivity - Q-test
     het <- TwoSampleMR::mr_heterogeneity(dat)
     het$I2 = ((het$Q-het$Q_df)/het$Q)*100
     plei <- TwoSampleMR::mr_pleiotropy_test(dat)
@@ -209,10 +207,10 @@ gettingSP_ldscMR = function(input.df,trait.names,log.file,run_ldsc=TRUE,run_MR=T
     write.table(as.data.frame(plei), file=MR_output, sep = ",", append = TRUE, row.names = FALSE)
     write.table("*", MR_output, sep = ",", quote = FALSE, col.names = FALSE, row.names = FALSE, append = TRUE)
 
-    ## reverse MR
+    # Reverse MR estimation
     rm(mr_dataX,mr_dataY,exp_dat,exp_data,exp_dat2,out_dat,out_dat2,dups,ind_keep,mr_ind,clump_bin, action, temp, temp1,dat,het,plei,smaller)
 
-    #reverse the exposure and outcome to Y - X, nothing else besides this needs to change
+    # Reverse the exposure and outcome to Y - X, nothing else besides this needs to change
     mr_dataX = cbind.data.frame(SNP = Y$RSID, beta = Y$BETA, se = Y$SE, effect_allele = Y$A1, other_allele = Y$A2, chr=Y$CHR, Phenotype=OUT, tstat = Y$TSTAT )
     mr_dataY = cbind.data.frame(SNP = X$RSID, beta = X$BETA, se = X$SE, effect_allele = X$A1, other_allele = X$A2, chr=X$CHR, Phenotype=EXP, tstat = X$TSTAT )
 
@@ -225,17 +223,14 @@ gettingSP_ldscMR = function(input.df,trait.names,log.file,run_ldsc=TRUE,run_MR=T
     mr_dataX = mr_dataX[mr_ind,]
     mr_dataY = mr_dataY[mr_ind,]
 
-    #filter( ( beta.exposure - beta.outcome ) / sqrt( se.exposure^2 + se.outcome^2 ) > reverse_t_threshold ) %>%  ind_keep=which((mr_dataX$beta-mr_dataY$beta)/sqrt(mr_dataX$se^2+mr_dataY$se^2) > reverse_t_threshold)
-    #ind_keep=which((mr_dataX$beta-mr_dataY$beta)/sqrt(mr_dataX$se^2+mr_dataY$se^2) > reverse_t_threshold)
     ind_keep=which((abs(mr_dataX$beta)-abs(mr_dataY$beta))/sqrt(mr_dataX$se^2+mr_dataY$se^2) > reverse_t_threshold)
     print(length(ind_keep))
     mr_dataX = mr_dataX[ind_keep,]
     mr_dataY = mr_dataY[ind_keep,]
 
-    exp_dat <- TwoSampleMR::format_data(mr_dataX, type="exposure")  ##same rows as mr_dataX
+    exp_dat <- TwoSampleMR::format_data(mr_dataX, type="exposure")  #same rows as mr_dataX
     clump_bin = snp_bin(mr_dataX,50000)
 
-    #exp_dat2 <- clump_data(exp_dat)
     exp_data = c()
     for (x in 1:length(clump_bin)) {
       temp = exp_dat[exp_dat$SNP %in% clump_bin[[x]]$SNP,]
@@ -268,7 +263,7 @@ gettingSP_ldscMR = function(input.df,trait.names,log.file,run_ldsc=TRUE,run_MR=T
       exp_dat2[swapped,'beta.exposure']=exp_dat2[swapped,'beta.exposure']*-1
       exp_dat2 = exp_dat2[c(aligned,swapped),]
       out_dat2 = out_dat2[c(aligned,swapped),]
-      action = 1  ## made sure all strands are okay
+      action = 1  #made sure all strands are okay
     }
 
     # Harmonise the exposure and outcome data
@@ -277,7 +272,7 @@ gettingSP_ldscMR = function(input.df,trait.names,log.file,run_ldsc=TRUE,run_MR=T
       outcome_dat = out_dat2, action = action
     )
 
-    #Sensitivity - Q-test
+    # Sensitivity - Q-test
     het <- TwoSampleMR::mr_heterogeneity(dat)
     het$I2 = ((het$Q-het$Q_df)/het$Q)*100
     plei <- TwoSampleMR::mr_pleiotropy_test(dat)

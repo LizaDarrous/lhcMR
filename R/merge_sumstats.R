@@ -31,28 +31,24 @@ merge_sumstats <- function(input.files,trait.names,LD.filepath,rho.filepath,mafT
   LDfile = input2[[1]][[1]]
   RHOfile = input2[[1]][[2]]
 
-  # remove the HLA region due to highly associated SNPs
+  # Remove the HLA region due to highly associated SNPs
   LDfile_ind = which(!(LDfile$CHR==6 & LDfile$POS>=28.5e6 & LDfile$POS<=33.5e6))
   LDfile = LDfile[LDfile_ind]
 
-  # slightly change pre-processing code + order by chr/pos before slicing. Also filter for MAF/info if column is present
+  # Filter for MAF/info if columns are present + order by chr/pos before slicing
   if("MAF" %in% colnames(Xfile)){
-    #colnames(Xfile)[colnames(Xfile) %in% c("HG18CHR","CHR", "CHROM", "CHROMOSOME")] <- "MAF"
     Xfile_ind = which(Xfile$MAF>mafT)
     Xfile = Xfile[Xfile_ind]
   }
   if("MAF" %in% colnames(Yfile)){
-    #colnames(Xfile)[colnames(Xfile) %in% c("HG18CHR","CHR", "CHROM", "CHROMOSOME")] <- "MAF"
     Yfile_ind = which(Yfile$MAF>mafT)
     Yfile = Yfile[Yfile_ind]
   }
   if("INFO" %in% colnames(Xfile)){
-    #colnames(Xfile)[colnames(Xfile) %in% c("HG18CHR","CHR", "CHROM", "CHROMOSOME")] <- "MAF"
     Xfile_ind = which(Xfile$INFO>infoT)
     Xfile = Xfile[Xfile_ind]
   }
   if("INFO" %in% colnames(Yfile)){
-    #colnames(Xfile)[colnames(Xfile) %in% c("HG18CHR","CHR", "CHROM", "CHROMOSOME")] <- "MAF"
     Yfile_ind = which(Yfile$INFO>infoT)
     Yfile = Yfile[Yfile_ind]
   }
@@ -66,7 +62,7 @@ merge_sumstats <- function(input.files,trait.names,LD.filepath,rho.filepath,mafT
                     Data$A2.x==Data$A2.y)
   swapped = which(Data$A1.x==Data$A2.y &
                     Data$A2.x==Data$A1.y)
-  #Correct the effect of swapped alleles as well as the t-stat for one of the two traits
+  # Correct the effect of swapped alleles as well as the t-stat for one of the two traits
   Data[swapped,'TSTAT.x']=Data[swapped,'TSTAT.x']*-1
   Data[swapped,'BETA.x']=Data[swapped,'BETA.x']*-1
   temp_alt=Data$A1.x
@@ -74,24 +70,21 @@ merge_sumstats <- function(input.files,trait.names,LD.filepath,rho.filepath,mafT
   Data[swapped,'A2.x']=temp_alt[swapped]
 
   Data1=Data[c(aligned,swapped),]
-  ## test swapping
+  # Test swapping
   all(Data1$A1.x==Data1$A1.y)
   all(Data1$A2.x==Data1$A2.y)
   Data = Data1
   Data$A1 = Data$A1.x
   Data$A2 = Data$A2.x
-  nrow(Data)
-  # 4,732,967
+  #nrow(Data)
 
-  Data = inner_join(Data, RHOfile) # based on rsid / chr / pos
-  nrow(Data)
-  # 4,689,922
 
-  #colnames(LDfile)[3] = "RSID"
-  LDfile$INFO = NULL # lots of SNPs have different info (UKBB vs UK10K?), needed otherwise only 207,914 SNPs left
-  Data = inner_join(Data, LDfile) # based on rsid / chr / pos
-  nrow(Data)
-  # 4,689,922
+  Data = inner_join(Data, RHOfile) #based on rsid / chr / pos
+  #nrow(Data)
+
+  LDfile$INFO = NULL #lots of SNPs have different info (UKBB vs UK10K?), needed otherwise only 207,914 SNPs left
+  Data = inner_join(Data, LDfile) #based on rsid / chr / pos
+  #nrow(Data)
 
   return(Data)
 

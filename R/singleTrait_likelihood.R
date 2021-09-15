@@ -82,7 +82,7 @@ singleTrait_likelihood <- function(theta,betX,pi1,sig1,w8s,m0,nX,bn=2^8,bins=15,
 
     phi = exp(Lx+Le+mf);
 
-    # in R, not possible to chose dimension for FFT, so we need a loop to do it for all rho bins
+    # In R, not possible to chose dimension for FFT, so we need a loop to do it for all rho bins
     FFT=array(NA, dim=c(bn, mm))
     for(l in 1:mm){
       FFT[,l] = fft(phi[,l])
@@ -94,11 +94,11 @@ singleTrait_likelihood <- function(theta,betX,pi1,sig1,w8s,m0,nX,bn=2^8,bins=15,
     FFT0 = Re(FFT*FFTmod)
     pfE = FFT0[cbind(t(bXi), ixMap)];
     length(which(pfE<0))
-    # if some, remove them & update weights to keep the correct set of SNPs
+    # If some, remove them & update weights to keep the correct set of SNPs
     my_w8s = w8s[pfE>0]
     pfE=pfE[pfE>0]
 
-    # we use m * mean(...) to account for SNPs that may have been excluded before
+    # We use m * mean(...) to account for SNPs that may have been excluded before
     logL = -m * mean(log(pfE*my_w8s))
   }
   return(logL)
