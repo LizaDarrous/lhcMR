@@ -10,13 +10,15 @@ calculate_SP(
   log.file = NA,
   run_ldsc = TRUE,
   run_MR = TRUE,
-  hm3,
-  ld,
+  saveRFiles = TRUE,
+  hm3 = NA,
+  ld = NA,
   nStep = 2,
   SP_single = 3,
   SP_pair = 50,
   SNP_filter = 10,
-  nCores = NA
+  nCores = NA,
+  M = 1e+07
 )
 }
 \arguments{

@@ -14,7 +14,7 @@
 #' @return
 # #' @export
 
-gettingSP_ldscMR = function(input.df,trait.names,log.file,run_ldsc=TRUE,run_MR=TRUE,hm3,ld){
+gettingSP_ldscMR = function(input.df,trait.names,log.file,run_ldsc=TRUE,run_MR=TRUE,saveRFiles=TRUE,hm3,ld){
 
   EXP = trait.names[1]
   OUT = trait.names[2]
@@ -202,10 +202,13 @@ gettingSP_ldscMR = function(input.df,trait.names,log.file,run_ldsc=TRUE,run_MR=T
     }else{
       axy_MR = res1[which(res1$method=="Inverse variance weighted"),'b']
     }
-    write.table(as.data.frame(res1), file=MR_output, sep = ",", append = TRUE, row.names = FALSE)
-    write.table(as.data.frame(het), file=MR_output, sep = ",", append = TRUE, row.names = FALSE)
-    write.table(as.data.frame(plei), file=MR_output, sep = ",", append = TRUE, row.names = FALSE)
-    write.table("*", MR_output, sep = ",", quote = FALSE, col.names = FALSE, row.names = FALSE, append = TRUE)
+
+    if(saveRFiles){
+      write.table(as.data.frame(res1), file=MR_output, sep = ",", append = TRUE, row.names = FALSE)
+      write.table(as.data.frame(het), file=MR_output, sep = ",", append = TRUE, row.names = FALSE)
+      write.table(as.data.frame(plei), file=MR_output, sep = ",", append = TRUE, row.names = FALSE)
+      write.table("*", MR_output, sep = ",", quote = FALSE, col.names = FALSE, row.names = FALSE, append = TRUE)
+    }
 
     # Reverse MR estimation
     rm(mr_dataX,mr_dataY,exp_dat,exp_data,exp_dat2,out_dat,out_dat2,dups,ind_keep,mr_ind,clump_bin, action, temp, temp1,dat,het,plei,smaller)
@@ -292,11 +295,14 @@ gettingSP_ldscMR = function(input.df,trait.names,log.file,run_ldsc=TRUE,run_MR=T
       ayx_MR = res2[which(res2$method=="Inverse variance weighted"),'b']
     }
 
-    write.table(as.data.frame(res2), file=MR_output, sep = ",", append = TRUE, row.names = FALSE)
-    write.table(as.data.frame(het), file=MR_output, sep = ",", append = TRUE, row.names = FALSE)
-    write.table(as.data.frame(plei), file=MR_output, sep = ",", append = TRUE, row.names = FALSE)
+    if(saveRFiles){
+      write.table(as.data.frame(res2), file=MR_output, sep = ",", append = TRUE, row.names = FALSE)
+      write.table(as.data.frame(het), file=MR_output, sep = ",", append = TRUE, row.names = FALSE)
+      write.table(as.data.frame(plei), file=MR_output, sep = ",", append = TRUE, row.names = FALSE)
+    }
 
   } else{axy_MR = runif(1,-0.5,0.5);ayx_MR = runif(1,-0.5,0.5);}
+
 
   return(list(i_XY, axy_MR, ayx_MR))
 

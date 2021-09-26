@@ -10,6 +10,7 @@ gettingSP_ldscMR(
   log.file,
   run_ldsc = TRUE,
   run_MR = TRUE,
+  saveRFiles = TRUE,
   hm3,
   ld
 )

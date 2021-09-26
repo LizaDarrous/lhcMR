@@ -5,16 +5,10 @@
 \title{Title}
 \usage{
 lhc_mr(
-  input.df_filtered,
+  SP_list,
   trait.names,
   SP_matrix,
-  iX,
-  iY,
-  piX = NA,
-  piY = NA,
-  SP_pair = 50,
   partition = NA,
-  nStep = 2,
   paral_method = "rslurm",
   nCores = NA,
   nBlock = 200,

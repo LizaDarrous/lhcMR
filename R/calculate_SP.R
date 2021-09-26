@@ -16,8 +16,8 @@
 #' @export
 #'
 #' @examples
-calculate_SP <- function(input.df,trait.names,log.file=NA,run_ldsc=TRUE,run_MR=TRUE,hm3,ld,nStep=2,
-                         SP_single=3,SP_pair=50,SNP_filter=10,nCores=NA){
+calculate_SP <- function(input.df,trait.names,log.file=NA,run_ldsc=TRUE,run_MR=TRUE,saveRFiles=TRUE,hm3=NA,ld=NA,nStep=2,
+                         SP_single=3,SP_pair=50,SNP_filter=10,nCores=NA,M=1e7){
 
   if(nStep>2 || nStep<1){
     cat(print("Please choose 1 or 2 for the number of analysis steps\n"))
@@ -38,7 +38,7 @@ calculate_SP <- function(input.df,trait.names,log.file=NA,run_ldsc=TRUE,run_MR=T
   OUT = trait.names[2]
 
   # Get estimates of starting points from LDSC and standard MR method (IVW)
-  SP = gettingSP_ldscMR(input.df,trait.names,log.file,run_ldsc,run_MR,hm3,ld)
+  SP = gettingSP_ldscMR(input.df,trait.names,log.file,run_ldsc,run_MR,saveRFiles,hm3,ld)
   i_XY = as.numeric(SP[[1]])
   axy_MR = as.numeric(SP[[2]])
   ayx_MR = as.numeric(SP[[3]])
@@ -76,7 +76,7 @@ calculate_SP <- function(input.df,trait.names,log.file=NA,run_ldsc=TRUE,run_MR=T
     test.exp <- parallel::mclapply(par.df[[1]], function(x) {
       theta = unlist(x)
       test1 = optim(theta, singleTrait_likelihood,
-                    betX=bX, pi1=pi1, sig1=sig1, w8s=w8s,
+                    betX=bX, pi1=pi1, sig1=sig1, w8s=w8s, M=M,
                     m0=m0, nX=nX, bn=2^7, bins=10,
                     method = "Nelder-Mead",
                     control = list(maxit = 5e3))
@@ -89,7 +89,7 @@ calculate_SP <- function(input.df,trait.names,log.file=NA,run_ldsc=TRUE,run_MR=T
     test.out <- parallel::mclapply(par.df[[1]], function(x) {
       theta = unlist(x)
       test1 = optim(theta, singleTrait_likelihood,
-                    betX=bY, pi1=pi1, sig1=sig1, w8s=w8s,
+                    betX=bY, pi1=pi1, sig1=sig1, w8s=w8s, M=M,
                     m0=m0, nX=nX, bn=2^7, bins=10,
                     method = "Nelder-Mead",
                     control = list(maxit = 5e3))
@@ -123,13 +123,13 @@ calculate_SP <- function(input.df,trait.names,log.file=NA,run_ldsc=TRUE,run_MR=T
     sp_h2Y = max(0,h2_y-(sp_tY^2))
     sp_axy = replicate(SP_pair, (axy_MR+runif(1,-0.1,0.1)))
     sp_ayx = replicate(SP_pair, (ayx_MR+runif(1,-0.1,0.1)))
-    sp_iXY = rep(i_XY,SP_pair)
+    sp_iXY = replicate(SP_pair, (i_XY+runif(1,-0.1,0.1))) #rep(i_XY,SP_pair)
 
     para=cbind(sp_h2X,sp_h2Y,sp_tX,sp_tY,sp_axy,sp_ayx,sp_iXY)
     sp_mat1=matrix(unlist(para), ncol=7, byrow = FALSE)
     colnames(sp_mat1)=c("sp_h2X","sp_h2Y","sp_tX","sp_tY","sp_axy","sp_ayx","sp_iXY")
     #sp_mat1 = cbind("SP"=c(1:nrow(sp_mat1)),sp_mat1)
-    write.csv(sp_mat1,"StartingPoints.csv", row.names=F)
+    if(saveRFiles){write.csv(sp_mat1,"StartingPoints.csv", row.names=F)}
     return(list("iX"=i_X,"iY"=i_Y,"piX"=pi_X,"piY"=pi_Y,"input.df_filtered"=input.df_filtered,"sp_mat"=sp_mat1))
   }
 
@@ -147,8 +147,8 @@ calculate_SP <- function(input.df,trait.names,log.file=NA,run_ldsc=TRUE,run_MR=T
     para=cbind(sp_piX,sp_piY,sp_h2X,sp_h2Y,sp_tX,sp_tY,sp_axy,sp_ayx,sp_iXY)
     sp_mat1=matrix(unlist(para), ncol=9, byrow = FALSE)
     colnames(sp_mat1)=c("sp_piX","sp_piY","sp_h2X","sp_h2Y","sp_tX","sp_tY","sp_axy","sp_ayx","sp_iXY")
-    write.csv(sp_mat1,"StartingPoints.csv", row.names=F) #SP_pair
-    return(list("iX"=i_X,"iY"=i_Y,"input.df_filtered"=input.df_filtered,"sp_mat"=sp_mat1))
+    if(saveRFiles){write.csv(sp_mat1,"StartingPoints.csv", row.names=F)}
+    return(list("iX"=i_X,"iY"=i_Y,"i_XY"=i_XY,"axy_MR"=axy_MR,"ayx_MR"=ayx_MR,"input.df_filtered"=input.df_filtered,"sp_mat"=sp_mat1))
 
   }
 

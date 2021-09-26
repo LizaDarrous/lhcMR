@@ -26,11 +26,21 @@
 #' @importFrom parallel mclapply detectCores
 #'
 #' @examples
-lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP_pair=50,partition=NA,nStep=2,
-                  paral_method="rslurm",nCores=NA,nBlock=200, M=1e7){
+lhc_mr = function(SP_list, trait.names,SP_matrix,partition=NA,paral_method="rslurm",nCores=NA,nBlock=200,M=1e7){
 
-  if(nStep>2 || nStep<1){
-    cat(print("Please choose 1 or 2 for the number of analysis steps\n"))
+  input.df_filtered = SP_list$input.df_filtered
+  SP_matrix = SP_list$SP_matrix
+  iX = SP_list$iX
+  iY = SP_list$iY
+  piX = SP_list$piX
+  piY = SP_list$piY
+  SP_pair = nrow(SP_matrix)
+  if(ncol(SP_matrix)==9) {
+    nStep = 1
+  } else if(ncol(SP_matrix)==7) {
+    nStep = 2
+  } else{
+    cat(print("Input error in number of steps"))
     stop()
   }
 
@@ -169,7 +179,7 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
       test.res <- parallel::mclapply(par.df[[1]], function(x) {
         theta = unlist(x)
         test = optim(theta, pairTrait_twoStep_likelihood,
-                      betX=betXY, pi1=pi1, sig1=sig1, w8s=w8s,
+                      betX=betXY, pi1=pi1, sig1=sig1, w8s=w8s, M=M,
                       m0=m0, nX=nX, nY=nY, pi_U=piU, pi_X=piX, pi_Y=piY, i_X=iX, i_Y=iY,
                       bn=2^7, bins=10,
                       method = "Nelder-Mead",
@@ -205,7 +215,7 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
         end_ind = as.numeric(x[3])
         test1 = optim(theta, pairTrait_twoStep_likelihood,
                      betXY=betXY[-(start_ind:end_ind),], pi1=pi1[-(start_ind:end_ind)], sig1=sig1[-(start_ind:end_ind)],
-                     w8s=w8s[-(start_ind:end_ind)], pi_U=piU,
+                     w8s=w8s[-(start_ind:end_ind)], M=M, pi_U=piU,
                      pi_X=piX, pi_Y=piY, i_X=iX, i_Y=iY,
                      m0=m0, nX=nX, nY=nY, bn=bn, bins=bins, model=param,
                      method = "Nelder-Mead",
@@ -321,7 +331,7 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
       test.res <- parallel::mclapply(par.df[[1]], function(x) {
         theta = unlist(x)
         test = optim(theta, pairTrait_singleStep_likelihood,
-                      betX=betXY, pi1=pi1, sig1=sig1, w8s=w8s,
+                      betX=betXY, pi1=pi1, sig1=sig1, w8s=w8s, M=M,
                       m0=m0, nX=nX, nY=nY, pi_U=piU, i_X=iX, i_Y=iY,
                       bn=2^7, bins=10,
                       method = "Nelder-Mead",
@@ -360,8 +370,8 @@ lhc_mr = function(input.df_filtered,trait.names,SP_matrix,iX,iY,piX=NA,piY=NA,SP
         end_ind = as.numeric(x[3])
         test1 = optim(theta, pairTrait_singleStep_likelihood,
                       betXY=betXY[-(start_ind:end_ind),], pi1=pi1[-(start_ind:end_ind)], sig1=sig1[-(start_ind:end_ind)],
-                      w8s=w8s[-(start_ind:end_ind)], pi_U=piU,
-                      i_X=iX, i_Y=iY,
+                      w8s=w8s[-(start_ind:end_ind)], M=M,
+                      pi_U=piU, i_X=iX, i_Y=iY,
                       m0=m0, nX=nX, nY=nY, bn=bn, bins=bins, model=param,
                       method = "Nelder-Mead",
                       control = list(maxit = 5e3,
