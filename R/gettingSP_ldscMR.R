@@ -10,7 +10,7 @@
 #'
 #' @importFrom stats fft filter qnorm runif sd
 #' @importFrom utils write.csv write.table
-#' @importFrom dplyr slice
+#' @importFrom dplyr slice rename select
 #' @return
 # #' @export
 

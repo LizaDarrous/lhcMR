@@ -86,6 +86,11 @@ merge_sumstats <- function(input.files,trait.names,LD.filepath,rho.filepath,mafT
   Data = inner_join(Data, LDfile) #based on rsid / chr / pos
   #nrow(Data)
 
+  # Filter out any NA in the effects
+  X.na = which(is.na(Data$BETA.x)==T)
+  Y.na = which(is.na(Data$BETA.y)==T)
+  Data = Data[-unique(c(X.na,Y.na)),]
+
   return(Data)
 
 }

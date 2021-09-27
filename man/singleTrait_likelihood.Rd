@@ -12,8 +12,8 @@ singleTrait_likelihood(
   w8s,
   m0,
   nX,
-  bn = 2^8,
-  bins = 15,
+  bn = 2^7,
+  bins = 10,
   M = 1e+07
 )
 }

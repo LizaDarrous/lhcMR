@@ -17,7 +17,7 @@
 #' @export
 #'
 #' @examples
-singleTrait_likelihood <- function(theta,betX,pi1,sig1,w8s,m0,nX,bn=2^8,bins=15,M=1e7){
+singleTrait_likelihood <- function(theta,betX,pi1,sig1,w8s,m0,nX,bn=2^7,bins=10,M=1e7){
 
   M = M #1e7
   piX = abs(theta[1]);
