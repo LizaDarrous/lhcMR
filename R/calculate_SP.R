@@ -90,7 +90,7 @@ calculate_SP <- function(input.df,trait.names,log.file=NA,run_ldsc=TRUE,run_MR=T
       theta = unlist(x)
       test2 = optim(theta, singleTrait_likelihood,
                     betX=bY, pi1=pi1, sig1=sig1, w8s=w8s, M=M,
-                    m0=m0, nX=nX, bn=2^7, bins=10,
+                    m0=m0, nX=nY, bn=2^7, bins=10,
                     method = "Nelder-Mead",
                     control = list(maxit = 5e3))
 
@@ -105,6 +105,12 @@ calculate_SP <- function(input.df,trait.names,log.file=NA,run_ldsc=TRUE,run_MR=T
     res_exp = abs(res_exp_min[2:4])
     res_out_min = test.out[which(test.out$mLL == min(test.out$mLL)), ]
     res_out = abs(res_out_min[2:4])
+
+    if(saveRFiles){
+      res_singleTrait = rbind(res_exp_min, res_out_min)
+      res_singleTrait = cbind("Trait"=c(EXP,OUT), res_singleTrait)
+      write.csv(res_singleTrait, paste0("SingleTraitAnalysis_",EXP,"-",OUT,".csv"), row.names = F)
+    }
 
   # Get fixed points due to single trait analysis estimate
   pi_X = as.numeric(res_exp[1])

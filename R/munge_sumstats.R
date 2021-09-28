@@ -11,7 +11,7 @@
 # HEAVILY INSPIRED by genomicSEM::munge @ https://github.com/GenomicSEM/GenomicSEM/blob/master/R/munge.R
 munge_sumstats <- function(input.files,trait.names){
   log.name = paste(trait.names,collapse="_")
-  log.file = file(paste0(log.name, "-process.log"),open="wt")
+  log.file = file(paste0(log.name, "-munging.log"),open="wt")
   begin.time = Sys.time()
 
   cat(print(paste0("Munging ", length(trait.names), " summary statistics files: ",log.name, ", started at ",begin.time), sep = ""),file=log.file,sep="\n",append=TRUE)
@@ -140,6 +140,6 @@ munge_sumstats <- function(input.files,trait.names){
     input.files[[i]]$A2 <- factor(toupper(input.files[[i]]$A2), c("A", "C", "G", "T"))
 
   }
-
-  return(list(input.files, begin.time,log.file))
+  close(log.file)
+  return(list(input.files, begin.time,log.name))
 }
