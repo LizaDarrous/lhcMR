@@ -7,7 +7,6 @@
 gettingSP_ldscMR(
   input.df,
   trait.names,
-  log.file,
   run_ldsc = TRUE,
   run_MR = TRUE,
   saveRFiles = TRUE,

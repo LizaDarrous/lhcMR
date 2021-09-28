@@ -1,22 +1,32 @@
-#' Title
+#' Title Calculate starting points to be used in the likelihood function optimisation
 #'
-#' @param input.df
-#' @param trait.names
+#' @param input.df The resulting data frame from merge_sumstats(), where the effect size, SE, RSID and other columns are present, in addition to columns representing LD scores, weights and local LD structure
+#' @param trait.names Vector containing the trait names in the order they were used in merge_sumstats(): Exposure, Outcome
 #' @param log.file
-#' @param run_ldsc
-#' @param run_MR
-#' @param hm3
-#' @param ld
-#' @param jobs
+#' @param run_ldsc Boolean. Whether GenomicSEM::ldsc should be run to obtain the cross trait-intercept (i_XY). If FALSE, a random value will be generated. Default value = TRUE
+#' @param run_MR Boolean. Whether TwoSampleMR::mr should be run to obtain the bidirectional causal effects (axy_MR, ayx_MR). If FALSE, random values will be generated. Default value = TRUE
+#' @param saveRFiles Boolean, whether to write the results of GenomicSEM::ldsc,TwoSampleMR::mr, and the single trait analysis of LHC-MR (returns trait intercept and polygenicity) Default value = TRUE
+#' @param hm3 Path to the input file (HAPMAP3 SNPs) required by GenomicSEM::ldsc
+#' @param ld Path to the input file (LD scores) required by GenomicSEM::ldsc
+#' @param nStep Can take two numerical values: 1 or 2. Represents the number of steps the lhcMR analysis will undertake. One single step estimates all 9 parameters simultaneously while fixing only
+#' the traits' intercepts iX and iY, while two steps estimates 7 parameters after having estimated traits' intercepts and polygenicity (iX, piX, iY, piY) from the single trait analysis and fixed
+#' their values in the likelihood optimisation and parameter estimation
+#' @param SP_single Numerical value indicating how many starting points should the single trait analysis use in the likelihood optimisation. Best to range between 3-5, default value = 3
+#' @param SP_pair Numerical value indicating how many starting points should the pair trait analysis use in the likelihood optimisation. Best to range between 50-100, default value = 50
+#' @param SNP_filter Numerical value indicating the filtering of every nth SNP to reduce large datasets and speed up analysis. Default value = 10
+#' @param nCores Numerical value indicating number of cores to be used in 'mclapply' to parallelise the analysis. If not set (default value = NA), then it will be calculated as 2/3 of the available cores
+#' @param M Numerical value indicating the number of SNPs used to calculate the LD reported in the LD file (for genotyped SNPs). Default value = 1e7
+
 #'
 #' @importFrom dplyr slice select rename
 #' @importFrom stats optim
 #' @importFrom parallel mclapply detectCores
-#' @return
+#' @return Returns a list containing the filtered dataset (by every `SNP_filter`th SNP), the starting points to be used in the pair trait optimisation, the traits' intercepts,
+#' the traits' polygenicity if nStep = 2, as well as some extra parameters like the cross-trait intercept and bidirectional causal effect estimated by IVW
 #' @export
 #'
 #' @examples
-calculate_SP <- function(input.df,trait.names,log.file=NA,run_ldsc=TRUE,run_MR=TRUE,saveRFiles=TRUE,hm3=NA,ld=NA,nStep=2,
+calculate_SP <- function(input.df,trait.names,run_ldsc=TRUE,run_MR=TRUE,saveRFiles=TRUE,hm3=NA,ld=NA,nStep=2,
                          SP_single=3,SP_pair=50,SNP_filter=10,nCores=NA,M=1e7){
 
   if(nStep>2 || nStep<1){
@@ -38,7 +48,7 @@ calculate_SP <- function(input.df,trait.names,log.file=NA,run_ldsc=TRUE,run_MR=T
   OUT = trait.names[2]
 
   # Get estimates of starting points from LDSC and standard MR method (IVW)
-  SP = gettingSP_ldscMR(input.df,trait.names,log.file,run_ldsc,run_MR,saveRFiles,hm3,ld)
+  SP = gettingSP_ldscMR(input.df,trait.names,run_ldsc,run_MR,saveRFiles,hm3,ld)
   i_XY = as.numeric(SP[[1]])
   axy_MR = as.numeric(SP[[2]])
   ayx_MR = as.numeric(SP[[3]])

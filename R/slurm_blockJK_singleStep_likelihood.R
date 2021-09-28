@@ -5,7 +5,7 @@
 #' @param end_ind
 #'
 #' @return
-#' @export
+#' NOT EXPORTED @export
 #'
 #' @examples
 slurm_blockJK_singleStep_likelihood = function(par,start_ind, end_ind){

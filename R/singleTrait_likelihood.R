@@ -14,7 +14,7 @@
 #' @importFrom stats fft sd
 #'
 #' @return
-#' @export
+#' NOT EXPORTED @export
 #'
 #' @examples
 singleTrait_likelihood <- function(theta,betX,pi1,sig1,w8s,m0,nX,bn=2^7,bins=10,M=1e7){

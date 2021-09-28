@@ -2,9 +2,9 @@
 #'
 #' @param input.df
 #' @param trait.names
-#' @param log.file
 #' @param run_ldsc
 #' @param run_MR
+#' @param saveRFiles
 #' @param hm3
 #' @param ld
 #'
@@ -12,9 +12,8 @@
 #' @importFrom utils write.csv write.table
 #' @importFrom dplyr slice rename select
 #' @return
-# #' @export
-
-gettingSP_ldscMR = function(input.df,trait.names,log.file,run_ldsc=TRUE,run_MR=TRUE,saveRFiles=TRUE,hm3,ld){
+# NOT EXPORTED @export
+gettingSP_ldscMR = function(input.df,trait.names,run_ldsc=TRUE,run_MR=TRUE,saveRFiles=TRUE,hm3,ld){
 
   EXP = trait.names[1]
   OUT = trait.names[2]

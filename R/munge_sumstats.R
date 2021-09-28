@@ -135,10 +135,6 @@ munge_sumstats <- function(input.files,trait.names){
     # Replace the original column names
     names(input.files[[i]]) <- Xcols
 
-    # Make sure all alleles are upper case for ease of comparison
-    input.files[[i]]$A1 <- factor(toupper(input.files[[i]]$A1), c("A", "C", "G", "T"))
-    input.files[[i]]$A2 <- factor(toupper(input.files[[i]]$A2), c("A", "C", "G", "T"))
-
   }
   close(log.file)
   return(list(input.files, begin.time,log.name))

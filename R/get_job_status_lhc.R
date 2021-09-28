@@ -3,7 +3,7 @@
 #' @param slr_job
 #'
 #' @return
-#' @export
+#' NOT EXPORTED @export
 #'
 #' @examples
 get_job_status_lhc <- function (slr_job)

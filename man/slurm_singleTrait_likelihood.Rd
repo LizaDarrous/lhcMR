@@ -10,7 +10,7 @@ slurm_singleTrait_likelihood(par)
 \item{par}{}
 }
 \value{
-
+NOT EXPORTED @export
 }
 \description{
 Title

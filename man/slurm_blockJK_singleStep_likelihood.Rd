@@ -12,7 +12,7 @@ slurm_blockJK_singleStep_likelihood(par, start_ind, end_ind)
 \item{end_ind}{}
 }
 \value{
-
+NOT EXPORTED @export
 }
 \description{
 Title

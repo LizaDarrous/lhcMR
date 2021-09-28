@@ -17,7 +17,7 @@
 #' @param M
 #'
 #' @return
-#' @export
+#' NOT EXPORTED @export
 #'
 #' @examples
 pairTrait_singleStep_likelihood <- function(theta,betXY,pi1,sig1,w8s,m0,pi_U=0.1,i_X,i_Y,nX,nY,model="comp",bn=2^8,bins=15,M=1e7){

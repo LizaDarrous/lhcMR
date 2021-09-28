@@ -7,7 +7,6 @@
 lhc_mr(
   SP_list,
   trait.names,
-  SP_matrix,
   partition = NA,
   paral_method = "rslurm",
   nCores = NA,
@@ -16,10 +15,25 @@ lhc_mr(
 )
 }
 \arguments{
-\item{nBlock}{}
+\item{SP_list}{List resulting from calculate_SP. Contains the filtered dataset (by every 'SNP_filter'th SNP), the starting points to be used in the pair trait optimisation, the traits' intercepts,
+the traits' polygenicity if nStep = 2, as well as some extra parameters like the cross-trait intercept and bidirectional causal effect estimated by IVW.}
+
+\item{trait.names}{Vector containing the trait names in the order they were used in merge_sumstats(): Exposure, Outcome}
+
+\item{partition}{String indicating the partition name to be used for the "rslurm" parallelisation}
+
+\item{paral_method}{String indicating which method to parallelise the optimisation over the number of sets of starting points. "rslurm" will submit the calculation to a SLurm cluster using
+a 'Slurm' workload manager, "lapply" will parallelise the optimisation using 'mclapply' over a set number of cores but will go sequentially over the sets of starting points and thus take more time.}
+
+\item{nCores}{Numerical value indicating number of cores to be used in 'mclapply' to parallelise the analysis. If not set (default value = NA), then it will be calculated as 2/3 of the available cores}
+
+\item{nBlock}{Numerical value indicating the number of blocks to create from the block jackknife analysis, where at each iteration one block is left out and the optimisation is ran again for a single starting
+point to obtain eventually 'nBlock' estimates and calculate the SE of the parameter estimates}
+
+\item{M}{Numerical value indicating the number of SNPs used to calculate the LD reported in the LD file (for genotyped SNPs). Default value = 1e7}
 }
 \value{
-
+Prints out a summary of the results
 }
 \description{
 Title

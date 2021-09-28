@@ -26,7 +26,7 @@ pairTrait_singleStep_likelihood(
 \item{M}{}
 }
 \value{
-
+NOT EXPORTED @export
 }
 \description{
 Title

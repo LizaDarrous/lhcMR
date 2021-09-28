@@ -10,7 +10,7 @@ slurm_pairTrait_twoStep_likelihood(par)
 \item{par}{}
 }
 \value{
-
+NOT EXPORTED @export
 }
 \description{
 Title

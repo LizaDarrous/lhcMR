@@ -10,7 +10,7 @@ get_job_status_lhc(slr_job)
 \item{slr_job}{}
 }
 \value{
-
+NOT EXPORTED @export
 }
 \description{
 Title

@@ -5,7 +5,7 @@
 #' @name %>%
 #' @rdname pipe
 #' @keywords internal
-#' @export
+#' NOT EXPORTED @export
 #' @importFrom magrittr %>%
 #' @usage lhs \%>\% rhs
 #' @param lhs A value or the magrittr placeholder.

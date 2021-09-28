@@ -15,31 +15,31 @@ merge_sumstats(
 }
 \arguments{
 \item{input.files}{\itemize{
-\item list of data frames, where each data frame contains the summary statistics of a trait to use
+\item list of data frames, where each data frame contains the summary statistics of a trait to use in the order of Exposure - Outcome
 }}
 
 \item{trait.names}{\itemize{
-\item vector containing the trait names in the order they're found in 'input files'
+\item Vector containing the trait names in the order they're found in 'input files'
 }}
 
 \item{mafT}{\itemize{
-\item Minor allele frequency threshold of selection
+\item Minor allele frequency threshold of selection, to be used if a MAF column is found in the summary statistics file. Default value = 0.005
 }}
 
 \item{infoT}{\itemize{
-\item SNP imputation quality threshold
+\item SNP imputation quality threshold, to be used if an INFO column is found in the summary statistics file. Default value = 0.99
 }}
 
 \item{LD.file}{\itemize{
-\item LD scores file, either obtained from Alkes group (1000G) or the one provided (UK10K)
+\item LD scores file, either obtained from Alkes group (1000G) or the one provided in the github (UK10K)
 }}
 
 \item{rho.file}{\itemize{
-\item Genotyped SNP-specific LD scores
+\item Genotyped SNP-specific (local) LD scores
 }}
 }
 \value{
-
+Returns a data frame where the summary statistics file, the LD file, and the SNP-specific LD file are merged
 }
 \description{
 Title
