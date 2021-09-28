@@ -54,7 +54,7 @@ merge_sumstats <- function(input.files,trait.names,LD.filepath,rho.filepath,mafT
   }
 
   # Join the exposure and outcome files
-  Data = inner_join(X_data, Y_data,
+  Data = inner_join(Xfile, Yfile,
                     by = c("CHR", "POS", "RSID"))
 
   # Join with rho file
