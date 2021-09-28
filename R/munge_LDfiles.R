@@ -6,7 +6,7 @@
 #' @return - returns the same list of data frames, but with updated column names, begin.time and log.file
 #' @importFrom stats pnorm
 
-# NOT EXPORTED @export
+#' @export
 # @usage munge_sumstats(list(X,Y),c("X","Y"))
 
 # HEAVILY INSPIRED by genomicSEM::munge @ https://github.com/GenomicSEM/GenomicSEM/blob/master/R/munge.R
