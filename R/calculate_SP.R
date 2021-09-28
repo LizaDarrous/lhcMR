@@ -70,8 +70,8 @@ calculate_SP <- function(input.df,trait.names,log.file=NA,run_ldsc=TRUE,run_MR=T
     colnames(sp_mat)=colnames(para)
     par.df = data.frame(par=I(apply(sp_mat,1,as.list))) #generate a dataframe of lists for each row of parameters - input for rslurm/lapply
 
-    test.exp = matrix(NA,nrow=SP_single,ncol=5)
-    test.out = matrix(NA,nrow=SP_single,ncol=5)
+    #test.exp = matrix(NA,nrow=SP_single,ncol=5)
+    #test.out = matrix(NA,nrow=SP_single,ncol=5)
 
     test.exp <- parallel::mclapply(par.df[[1]], function(x) {
       theta = unlist(x)
@@ -88,13 +88,13 @@ calculate_SP <- function(input.df,trait.names,log.file=NA,run_ldsc=TRUE,run_MR=T
 
     test.out <- parallel::mclapply(par.df[[1]], function(x) {
       theta = unlist(x)
-      test1 = optim(theta, singleTrait_likelihood,
+      test2 = optim(theta, singleTrait_likelihood,
                     betX=bY, pi1=pi1, sig1=sig1, w8s=w8s, M=M,
                     m0=m0, nX=nX, bn=2^7, bins=10,
                     method = "Nelder-Mead",
                     control = list(maxit = 5e3))
 
-      list("mLL"=test1$value,"par"=test1$par,"conv"=test1$convergence)
+      list("mLL"=test2$value,"par"=test2$par,"conv"=test2$convergence)
     }, mc.cores = nCores)
 
     test.out = as.data.frame(t(matrix(unlist(test.out), nrow=length(unlist(test.out[1])))))
@@ -123,14 +123,15 @@ calculate_SP <- function(input.df,trait.names,log.file=NA,run_ldsc=TRUE,run_MR=T
     sp_h2Y = max(0,h2_y-(sp_tY^2))
     sp_axy = replicate(SP_pair, (axy_MR+runif(1,-0.1,0.1)))
     sp_ayx = replicate(SP_pair, (ayx_MR+runif(1,-0.1,0.1)))
-    sp_iXY = replicate(SP_pair, (i_XY+runif(1,-0.1,0.1))) #rep(i_XY,SP_pair)
+    sp_iXY = replicate(SP_pair, (i_XY+runif(1,-0.05,0.05))) #rep(i_XY,SP_pair)
 
     para=cbind(sp_h2X,sp_h2Y,sp_tX,sp_tY,sp_axy,sp_ayx,sp_iXY)
     sp_mat1=matrix(unlist(para), ncol=7, byrow = FALSE)
     colnames(sp_mat1)=c("sp_h2X","sp_h2Y","sp_tX","sp_tY","sp_axy","sp_ayx","sp_iXY")
     #sp_mat1 = cbind("SP"=c(1:nrow(sp_mat1)),sp_mat1)
     if(saveRFiles){write.csv(sp_mat1,"StartingPoints.csv", row.names=F)}
-    return(list("iX"=i_X,"iY"=i_Y,"piX"=pi_X,"piY"=pi_Y,"input.df_filtered"=input.df_filtered,"sp_mat"=sp_mat1))
+    return(list("iX"=i_X,"iY"=i_Y,"piX"=pi_X,"piY"=pi_Y,"i_XY"=i_XY,"axy_MR"=axy_MR,"ayx_MR"=ayx_MR,
+                "input.df_filtered"=input.df_filtered,"sp_mat"=sp_mat1))
   }
 
   if(nStep==1){
@@ -138,11 +139,11 @@ calculate_SP <- function(input.df,trait.names,log.file=NA,run_ldsc=TRUE,run_MR=T
     sp_piY = runif(SP_pair,0,1e-4) #rep(pi_Y,SP_pair)
     sp_tX = runif(SP_pair,0,0.5)
     sp_tY = runif(SP_pair,-0.5,0.5)
-    sp_h2X = h2_x-(sp_tX^2)
-    sp_h2Y = h2_y-(sp_tY^2)
+    sp_h2X = max(0,h2_x-(sp_tX^2))
+    sp_h2Y = max(0,h2_y-(sp_tY^2))
     sp_axy = replicate(SP_pair, (axy_MR+runif(1,-0.1,0.1)))
     sp_ayx = replicate(SP_pair, (ayx_MR+runif(1,-0.1,0.1)))
-    sp_iXY = rep(i_XY,SP_pair)
+    sp_iXY = replicate(SP_pair, (i_XY+runif(1,-0.05,0.05)))
 
     para=cbind(sp_piX,sp_piY,sp_h2X,sp_h2Y,sp_tX,sp_tY,sp_axy,sp_ayx,sp_iXY)
     sp_mat1=matrix(unlist(para), ncol=9, byrow = FALSE)
