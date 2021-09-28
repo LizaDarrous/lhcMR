@@ -66,8 +66,8 @@ merge_sumstats <- function(input.files,trait.names,LD.filepath,rho.filepath,mafT
   Data = inner_join(Data, LDfile) #based on rsid / chr / pos
   #nrow(Data)
 
+  # Reorder based on chromosome and position
   Data %>% arrange(CHR, POS) -> Data
-
 
   aligned = which(Data$A1.x==Data$A1.y &
                     Data$A2.x==Data$A2.y)
@@ -83,10 +83,10 @@ merge_sumstats <- function(input.files,trait.names,LD.filepath,rho.filepath,mafT
   Data1=Data[c(aligned,swapped),]
 
   # Make sure all alleles are upper case for ease of comparison
-  Data1$A1.x <- factor(toupper(Data$A1.x), c("A", "C", "G", "T"))
-  Data1$A1.y <- factor(toupper(Data$A1.y), c("A", "C", "G", "T"))
-  Data1$A2.x <- factor(toupper(Data$A2.x), c("A", "C", "G", "T"))
-  Data1$A2.y <- factor(toupper(Data$A2.y), c("A", "C", "G", "T"))
+  Data1$A1.x <- factor(toupper(Data1$A1.x), c("A", "C", "G", "T"))
+  Data1$A2.x <- factor(toupper(Data1$A2.x), c("A", "C", "G", "T"))
+  Data1$A1.y <- factor(toupper(Data1$A1.y), c("A", "C", "G", "T"))
+  Data1$A2.y <- factor(toupper(Data1$A2.y), c("A", "C", "G", "T"))
 
   # Test swapping
   all(Data1$A1.x==Data1$A1.y)
