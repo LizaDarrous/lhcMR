@@ -27,3 +27,7 @@ Imports:
     TwoSampleMR
 URL: https://github.com/LizaDarrous/lhcMR
 BugReports: https://github.com/LizaDarrous/lhcMR/issues
+Suggests: 
+    rmarkdown,
+    knitr
+VignetteBuilder: knitr

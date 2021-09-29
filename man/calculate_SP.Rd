@@ -2,7 +2,7 @@
 % Please edit documentation in R/calculate_SP.R
 \name{calculate_SP}
 \alias{calculate_SP}
-\title{Title Calculate starting points to be used in the likelihood function optimisation}
+\title{Calculate starting points to be used in the likelihood function optimisation}
 \usage{
 calculate_SP(
   input.df,
@@ -54,5 +54,5 @@ Returns a list containing the filtered dataset (by every \code{SNP_filter}th SNP
 the traits' polygenicity if nStep = 2, as well as some extra parameters like the cross-trait intercept and bidirectional causal effect estimated by IVW
 }
 \description{
-Title Calculate starting points to be used in the likelihood function optimisation
+Calculate starting points to be used in the likelihood function optimisation
 }

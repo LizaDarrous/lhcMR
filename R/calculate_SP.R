@@ -1,4 +1,4 @@
-#' Title Calculate starting points to be used in the likelihood function optimisation
+#' Calculate starting points to be used in the likelihood function optimisation
 #'
 #' @param input.df The resulting data frame from merge_sumstats(), where the effect size, SE, RSID and other columns are present, in addition to columns representing LD scores, weights and local LD structure
 #' @param trait.names Vector containing the trait names in the order they were used in merge_sumstats(): Exposure, Outcome

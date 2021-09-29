@@ -4,7 +4,7 @@
 \alias{munge_LDfiles}
 \title{Title}
 \usage{
-munge_LDfiles(input.files, trait.names, log.file)
+munge_LDfiles(input.files, trait.names, log.name)
 }
 \arguments{
 \item{input.files}{\itemize{
@@ -15,13 +15,13 @@ munge_LDfiles(input.files, trait.names, log.file)
 \item vector containing the trait names in the order they're found in 'input files'
 }}
 
-\item{log.file}{\itemize{
-\item log.file connection to corry out printing
+\item{log.name}{\itemize{
+\item the name of the log.file connection to append log descriptions
 }}
 }
 \value{
 \itemize{
-\item returns the same list of data frames, but with updated column names, begin.time and log.file
+\item returns the same list of data frames, but with updated column names, and log.name
 }
 }
 \description{

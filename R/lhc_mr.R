@@ -1,4 +1,4 @@
-#' Title
+#' Main trait pair analysis using LHC-MR
 #'
 #' @param SP_list List resulting from calculate_SP. Contains the filtered dataset (by every 'SNP_filter'th SNP), the starting points to be used in the pair trait optimisation, the traits' intercepts,
 #' the traits' polygenicity if nStep = 2, as well as some extra parameters like the cross-trait intercept and bidirectional causal effect estimated by IVW.
@@ -26,7 +26,7 @@
 lhc_mr = function(SP_list,trait.names,partition=NA,paral_method="rslurm",nCores=NA,nBlock=200,M=1e7){
 
   input.df_filtered = SP_list$input.df_filtered
-  SP_matrix = SP_list$SP_matrix
+  SP_matrix = SP_list$sp_mat
   iX = SP_list$iX
   iY = SP_list$iY
   piX = SP_list$piX

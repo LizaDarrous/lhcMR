@@ -1,4 +1,4 @@
-#' Title
+#' Merge summary statistics into a single input data frame
 #'
 #' @param input.files - list of data frames, where each data frame contains the summary statistics of a trait to use in the order of Exposure - Outcome
 #' @param trait.names - Vector containing the trait names in the order they're found in 'input files'

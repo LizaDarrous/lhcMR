@@ -2,15 +2,16 @@
 #'
 #' @param input.files  - list of data frames, where each data frame contains the summary statistics of a trait to use
 #' @param trait.names - vector containing the trait names in the order they're found in 'input files'
-#' @param log.file - log.file connection to corry out printing
-#' @return - returns the same list of data frames, but with updated column names, begin.time and log.file
+#' @param log.name - the name of the log.file connection to append log descriptions
+#' @return - returns the same list of data frames, but with updated column names, and log.name
 #' @importFrom stats pnorm
 
 # NOT EXPORTED @export
 # @usage munge_sumstats(list(X,Y),c("X","Y"))
 
 # HEAVILY INSPIRED by genomicSEM::munge @ https://github.com/GenomicSEM/GenomicSEM/blob/master/R/munge.R
-munge_LDfiles <- function(input.files,trait.names,log.file){
+munge_LDfiles <- function(input.files,trait.names,log.name){
+  log.file = file(paste0(log.name, "-munging.log"), open="a")
   begin.time = Sys.time()
 
   cat(print(paste0("Munging LD score files, started at ",begin.time), sep = ""),file=log.file,sep="\n",append=TRUE)
@@ -117,6 +118,6 @@ munge_LDfiles <- function(input.files,trait.names,log.file){
     # Replace the original column names
     names(input.files[[i]]) <- Xcols
   }
-
-  return(list(input.files, log.file))
+  close(log.file)
+  return(list(input.files, log.name))
 }

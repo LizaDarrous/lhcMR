@@ -2,7 +2,7 @@
 % Please edit documentation in R/merge_sumstats.R
 \name{merge_sumstats}
 \alias{merge_sumstats}
-\title{Title}
+\title{Merge summary statistics into a single input data frame}
 \usage{
 merge_sumstats(
   input.files,
@@ -42,5 +42,5 @@ merge_sumstats(
 Returns a data frame where the summary statistics file, the LD file, and the SNP-specific LD file are merged
 }
 \description{
-Title
+Merge summary statistics into a single input data frame
 }

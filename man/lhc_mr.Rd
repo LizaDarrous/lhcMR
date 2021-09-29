@@ -2,7 +2,7 @@
 % Please edit documentation in R/lhc_mr.R
 \name{lhc_mr}
 \alias{lhc_mr}
-\title{Title}
+\title{Main trait pair analysis using LHC-MR}
 \usage{
 lhc_mr(
   SP_list,
@@ -36,5 +36,5 @@ point to obtain eventually 'nBlock' estimates and calculate the SE of the parame
 Prints out a summary of the results
 }
 \description{
-Title
+Main trait pair analysis using LHC-MR
 }
