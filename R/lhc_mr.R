@@ -464,12 +464,12 @@ lhc_mr = function(SP_list,trait.names,partition=NA,paral_method="rslurm",nCores=
   res_est = unlist(dplyr::select(res_est, -c(SP,mLL,conv)))
   res_JKse = rep(NA,length(res_est))
   if(nStep == 1){res_JKse[1:length(JK_res$se_JK)] = JK_res$se_JK}
-  if(nStep == 2){res_JKse[3:length(JK_res$se_JK)] = JK_res$se_JK}
+  if(nStep == 2){res_JKse[3:(2+length(JK_res$se_JK))] = JK_res$se_JK}
   res_pval = 2*pnorm(-abs(res_est/res_JKse))
   res_tab = rbind(res_est,res_JKse,res_pval)
   rownames(res_tab)=c("Parameter estimates","SE-JK","Pval")
 
-  write.csv(res_tab,paste0("SummarisedResults_",EXP,"-",OUT,".csv"),row.names = T,col.names = T)
+  write.csv(res_tab,paste0("SummarisedResults_",EXP,"-",OUT,".csv"),row.names = T)
   print(res_tab)
 
 }
