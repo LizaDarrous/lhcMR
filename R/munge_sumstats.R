@@ -4,6 +4,7 @@
 #' @param trait.names - vector containing the trait names in the order they're found in 'input files'
 #' @return - returns the same list of data frames, but with updated column names, begin.time and log.file
 #' @importFrom stats pnorm
+#' @keywords internal
 
 # NOT EXPORTED @export
 # @usage munge_sumstats(list(X,Y),c("X","Y"))

@@ -15,6 +15,7 @@
 #'
 #' @return
 #' NOT EXPORTED @export
+#' @keywords internal
 #'
 #' @examples
 singleTrait_likelihood <- function(theta,betX,pi1,sig1,w8s,m0,nX,bn=2^7,bins=10,M=1e7){

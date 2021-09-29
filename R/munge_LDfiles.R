@@ -5,6 +5,7 @@
 #' @param log.name - the name of the log.file connection to append log descriptions
 #' @return - returns the same list of data frames, but with updated column names, and log.name
 #' @importFrom stats pnorm
+#' @keywords internal
 
 # NOT EXPORTED @export
 # @usage munge_sumstats(list(X,Y),c("X","Y"))

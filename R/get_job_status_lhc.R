@@ -3,6 +3,7 @@
 #' @param slr_job
 #'
 #' @return
+#' @keywords internal
 #' NOT EXPORTED @export
 #'
 #' @examples

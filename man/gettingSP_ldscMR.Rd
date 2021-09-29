@@ -23,3 +23,4 @@ gettingSP_ldscMR(
 \description{
 Title
 }
+\keyword{internal}

@@ -6,6 +6,7 @@
 #'
 #' @return
 #' NOT EXPORTED @export
+#' @keywords internal
 #'
 #' @examples
 slurm_blockJK_singleStep_likelihood = function(par,start_ind, end_ind){

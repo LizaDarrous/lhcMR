@@ -27,3 +27,4 @@ munge_LDfiles(input.files, trait.names, log.name)
 \description{
 Title
 }
+\keyword{internal}

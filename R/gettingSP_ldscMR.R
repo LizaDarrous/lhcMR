@@ -12,6 +12,7 @@
 #' @importFrom utils write.csv write.table
 #' @importFrom dplyr slice rename select
 #' @return
+#' @keywords internal
 # NOT EXPORTED @export
 gettingSP_ldscMR = function(input.df,trait.names,run_ldsc=TRUE,run_MR=TRUE,saveRFiles=TRUE,hm3,ld){
 

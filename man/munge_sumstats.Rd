@@ -23,3 +23,4 @@ munge_sumstats(input.files, trait.names)
 \description{
 Title - Read the columns from the summary statistics files and edit them as required
 }
+\keyword{internal}

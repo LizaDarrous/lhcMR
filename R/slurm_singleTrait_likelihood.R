@@ -4,6 +4,7 @@
 #'
 #' @return
 #' NOT EXPORTED @export
+#' @keywords internal
 #'
 #' @examples
 slurm_singleTrait_likelihood = function(par){

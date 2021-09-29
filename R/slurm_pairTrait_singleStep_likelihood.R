@@ -4,6 +4,7 @@
 #'
 #' @return
 #' NOT EXPORTED @export
+#' @keywords internal
 #'
 #' @examples
 slurm_pairTrait_singleStep_likelihood = function(par){
