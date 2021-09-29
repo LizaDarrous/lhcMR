@@ -252,6 +252,8 @@ lhc_mr = function(SP_list,trait.names,partition=NA,paral_method="rslurm",nCores=
     assign(x="nX", value=nX, env=.GlobalEnv)
     assign(x="nY", value=nY, env=.GlobalEnv)
     assign(x="piU", value=piU, env=.GlobalEnv)
+    assign(x="iX", value=iX, env=.GlobalEnv)
+    assign(x="iY", value=iY, env=.GlobalEnv)
     assign(x="param", value=param, env=.GlobalEnv)
     assign(x="bn", value=bn, env=.GlobalEnv)
     assign(x="bins", value=bins, env=.GlobalEnv)
