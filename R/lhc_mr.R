@@ -414,12 +414,12 @@ lhc_mr = function(SP_list,trait.names,partition=NA,paral_method="rslurm",nCores=
 
   for (x in c(1:ncol(res_minFil))){
     param = res_minFil[,x]
-    print(colnames(res_minFil)[x])
+    #print(colnames(res_minFil)[x])
     Xf1 = MASS::fitdistr(param, "normal")
     Xf2 = tryCatch({capture.output(mixtools::normalmixEM(param, k=2, maxit=1e8))}, warning = function(warning_condition) {
       return(NA)
     }, error = function(error_condition) {
-      print("Error")
+      print("Error: 2-component normal mixture could not be fit on this data.")
       return(NA)
     })
     AIC1 = 2*2 - 2*(Xf1$loglik)
@@ -430,9 +430,9 @@ lhc_mr = function(SP_list,trait.names,partition=NA,paral_method="rslurm",nCores=
     JK_res$AIC_2comp[x] = AIC2
 
 
-    if(!is.na(Xf2)){
-      print(colnames(res_minFil)[x])
-      JK_res$convergance_2comp[x] = !any(str_detect(Xf2, "WARNING! NOT CONVERGENT!"))
+    if(!is.na(Xf2[1])){
+      #print(colnames(res_minFil)[x])
+      JK_res$convergance_2comp[x] = !any(str_detect(Xf2, "Warning: not convergent!"))
       JK_res[x,10:11] = as.numeric(str_split(str_squish(Xf2[str_which(Xf2, "mu")+1]), " " )[[1]][2:3])
       JK_res[x,12:13] = (as.numeric(str_split(str_squish(Xf2[str_which(Xf2, "sigma")+1]), " " )[[1]][2:3]))
       JK_res[x,14:15] = as.numeric(str_split(str_squish(Xf2[str_which(Xf2, "lambda")+1]), " " )[[1]][2:3])

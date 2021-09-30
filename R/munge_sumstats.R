@@ -77,7 +77,7 @@ munge_sumstats <- function(input.files,trait.names){
     #ref
     if("A2" %in% Xcols){cat(print(paste0("Interpreting the A2 column as the alternate allele column in ",trait.names[i],".")),file=log.file,sep="\n",append=TRUE)
     }else{
-      Xcols[Xcols %in% c("A2","ALLELE2","ALLELE0","OTHER_ALLELE","REF","NON_EFFECT_ALLELE","DEC_ALLELE","OA","NEA", "ALT")] <- "A2"
+      Xcols[Xcols %in% c("A2","ALLELE2","ALLELE0","OTHER_ALLELE","REF","NON_EFFECT_ALLELE","DEC_ALLELE","OA","NEA")] <- "A2"
       if(length(base::setdiff(namesX,Xcols)) > 0) cat(print(paste0("Interpreting the ", setdiff(namesX, Xcols), " column in ", trait.names[i] ," as the alternate allele column.")),file=log.file,sep="\n",append=TRUE)
     }
     namesX = Xcols
