@@ -74,7 +74,7 @@ uses the previously generated data frame to smartly generate starting points (SP
 -   `lhc_mr()` 
 main function that uses the input data frame and the stating points to optimize the likelihood function and estimate the parameters (most notably the bidirectional causal effect, confounder effect and total trait heritability), as well as their standard error (SE) using block jackknife.
 
-On overview of the usage of each is provided in the \manual[doc/lhcMR_manual.pdf], and their description and input parameters are detailed in the steps below:
+On overview of the usage of each is provided in the [manual](doc/lhcMR_manual.pdf), and their description and input parameters are detailed in the steps below:
 
 ##### Step 1: Reading in and merging Data using `merge_sumstats()`:
 `merge_sumstats()` takes in a `input.files` list containing the two summary statistics files with all their required columns detailed above, a vector `trait.names` containing two strings corresponding to the trait names in the order they were placed in the list. As well as the **paths** for the LDscore files mentioned above in `LD.filepath` and `rho.filepath`. This function first checks for the presence of the needed columns in all files, then joins the different files based on chromosome and position, checks for swapped alleles and corrects their effects and finally returns a large dataframe with all the columns needed to be used in all the subsequent steps.
@@ -90,7 +90,7 @@ To run the single trait (or pair-trait analysis in step 3), the data input is re
 `SP_pair` indicates how many sets of starting points should be generated from all these parameters (generated with small noise added or randomly). If `nStep=1`, we advise to have more starting points `80-100`, whereas if `nStep=2` the value can be 50 or higher.
 `saveRFiles=TRUE` will write the results of the previous functions as `.csv` files in your working directory.
 
-Note: if you are using your own LDscore, please specify the number os SNPs used to generate the file in `M`
+Note: if you are using your own LDscore, please specify the number of SNPs used to generate the file in `M`
 
 ##### Step 3: Running the likelihood optimisation to estimate the parameters, followed by a block-jackknife procedure to calculate parameter-SE using `lhc_mr()`:
 
