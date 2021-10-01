@@ -35,7 +35,7 @@ calculate_SP <- function(input.df,trait.names,run_ldsc=TRUE,run_MR=TRUE,saveRFil
   }
 
   if(is.na(nCores)){
-    nCores = floor((parallel::detectCores())/1.3)
+    nCores = max(1,floor((parallel::detectCores())/3))
   } else {
     if(nCores > parallel::detectCores()){
       cat(print("Core number chosen is greater than cores available\n"))
