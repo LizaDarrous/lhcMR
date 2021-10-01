@@ -74,7 +74,8 @@ uses the previously generated data frame to smartly generate starting points (SP
 -   `lhc_mr()` 
 main function that uses the input data frame and the stating points to optimize the likelihood function and estimate the parameters (most notably the bidirectional causal effect, confounder effect and total trait heritability), as well as their standard error (SE) using block jackknife.
 
-On overview of the usage of each is provided in the [manual](doc/lhcMR_manual.pdf), and their description and input parameters are detailed in the steps below:
+On overview of the usage of each is provided in the [manual](doc/lhcMR_manual.pdf), and their description and input parameters are detailed in the steps below:  
+Note: we advise to run the analysis on master node instead of a worker node, especially if you choose to run the parallelisation using the `lapply` option in Step 3 in order to have access to cores.
 
 ##### Step 1: Reading in and merging Data using `merge_sumstats()`:
 `merge_sumstats()` takes in a `input.files` list containing the two summary statistics files with all their required columns detailed above, a vector `trait.names` containing two strings corresponding to the trait names in the order they were placed in the list. As well as the **paths** for the LDscore files mentioned above in `LD.filepath` and `rho.filepath`. This function first checks for the presence of the needed columns in all files, then joins the different files based on chromosome and position, checks for swapped alleles and corrects their effects and finally returns a large dataframe with all the columns needed to be used in all the subsequent steps.
@@ -84,16 +85,26 @@ Taking in the resulting data frame from the previous method as `input.df`, as we
 
 After obtaining these values to use as starting points for their parameter estimation, others can be obtained from a random distribution or from a single trait analysis. Parameters like the confounding effect `tX, tY` and direct trait heritabilities `h2X, h2Y` are obtained randomly. Whereas parameters such as the trait intercepts or SNP polygenicity are obtained from the single trait analysis where `LHC-MR` is run as a simplified model given only the SNP effects of a single trait, without any input from a second trait or a confounder.
 
-To run the single trait (or pair-trait analysis in step 3), the data input is reduced (advisable) by every nth SNP using the `SNP_filter` parameter (default=10). The number of random starting points sets for the single trait analysis should be set using the `SP_single` parameter, we advise a value between 3-5.
-`nStep` is the parameter used to indicate how many steps should the `LHC-MR` analysis take. Values can be either `nStep=1`, where the analysis is done such that all 9 parameters are estimated in the second step simulatenously and only `iX,iY` are fixed, **or** `nStep=2` where 7 parameters are estimated and `piX,piY` are fixed in addition to `iX,iY` from the single-trait analysis.
+To speed up the single trait (or pair-trait analysis in step 3), the data input is reduced by every n-th SNP using the `SNP_filter` parameter (default=10). The number of random starting points sets for the single trait analysis should be set using the `SP_single` parameter, we advise a value between 3-5.  
+`nStep` is the parameter used to indicate how many steps should the `LHC-MR` analysis take. Values can be either `nStep=1`, where the analysis is done such that all 9 parameters are estimated in the second step simultaneously and only `iX,iY` are fixed, **or** `nStep=2` where 7 parameters are estimated and `piX,piY` are fixed in addition to `iX,iY` from the single-trait analysis.
 
 `SP_pair` indicates how many sets of starting points should be generated from all these parameters (generated with small noise added or randomly). If `nStep=1`, we advise to have more starting points `80-100`, whereas if `nStep=2` the value can be 50 or higher.
-`saveRFiles=TRUE` will write the results of the previous functions as `.csv` files in your working directory.
+`saveRFiles=TRUE` will write the results of the previous functions as `.csv` files in your working directory.  
+Note: if you are using your own LDscore, please specify the number of SNPs used to generate the file in `M`.
 
-Note: if you are using your own LDscore, please specify the number of SNPs used to generate the file in `M`
+This function returns a list containing `iX,iY,piX,piY` to be fixed in the optimisation of the next step, as well as the n-th SNP filtered data frame `input.df_filtered` and the generated starting points matrix `sp_mat`. On top of that, the values of the IVW estimated bidirectional effect `axy_MR,ayx_MR` and the cross-trait intercept `iXY` are reported. 
 
 ##### Step 3: Running the likelihood optimisation to estimate the parameters, followed by a block-jackknife procedure to calculate parameter-SE using `lhc_mr()`:
+`lhc_mr()` takes the input list from the previous functions, the vector of `trait.names` to run the pair trait optimisation. The parallelisation of the optimisation can be done in two ways, depending on the `paral_method` chosen. If `paral_method="rslurm"`, then the Slurm workload manager will parallelise the optimisation over the sets of starting points (faster), and the partition you wish to use should be specified in `partition` as a string.  
+Otherwise if `paral_method="lapply"` then the `parallel::mclapply` function is used to split the parallelisation over the available cores.  
+`nBlock` indicates how many blocks should be created for the block jackknife analysis, by default this value is `200`.
 
+The results of the optimisation over the starting points, as well as the block jackknife optimisation are written as `.csv` files. The summary calculations of the block jackknife procedure is also reported as a `.csv` file, and finally the parameter estimates, their SE and p-values are printed out and reported as a `.csv` file. 
 
+Note: if you are using your own LDscore, please specify the number of SNPs used to generate the file in `M`.
 
+## Citation
+Out manuscript is under review, but you can read our pre-print [here](https://www.medrxiv.org/content/10.1101/2020.01.27.20018929v3).
 
+## Contact
+Liza Darrous <darrous.liza@gmail.com>
