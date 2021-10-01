@@ -129,10 +129,10 @@ rho.filepath = "~/data/LD_GM2_2prm.csv" # local/SNP-specfic LD scores
 ld = "~/genomicSEM/data/eur_w_ld_chr/"
 hm3 = "~/genomicSEM/data/w_hm3.noMHC.snplist"
 
-trait.names=c("BWeight","DM")
 rm(VAR) # to free up space
 
 ## Step 1
+trait.names=c("BWeight","DM")
 input.files = list(X,Y)
 df = merge_sumstats(input.files,trait.names,LD.filepath,rho.filepath)
 
