@@ -97,13 +97,53 @@ This function returns a list containing `iX,iY,piX,piY` to be fixed in the optim
 
 ##### Step 3: Running the likelihood optimisation to estimate the parameters, followed by a block-jackknife procedure to calculate parameter-SE using `lhc_mr()`:
 `lhc_mr()` takes the input list from the previous functions, the vector of `trait.names` to run the pair trait optimisation. The parallelisation of the optimisation can be done in two ways, depending on the `paral_method` chosen. If `paral_method="rslurm"`, then the Slurm workload manager will parallelise the optimisation over the sets of starting points (faster), and the partition you wish to use should be specified in `partition` as a string.  
-Otherwise if `paral_method="lapply"` then the `parallel::mclapply` function is used to split the parallelisation over the available cores.  
+Otherwise if `paral_method="lapply"` then the `parallel::mclapply` function is used to split the parallelisation over the available cores. This way is error-prone due to the availablity or lack thereof of cores to be used.  
 `nBlock` indicates how many blocks should be created for the block jackknife analysis, by default this value is `200`.
 
 The results of the optimisation over the starting points, as well as the block jackknife optimisation are written as `.csv` files. The summary calculations of the block jackknife procedure is also reported as a `.csv` file, and finally the parameter estimates, their SE and p-values are printed out and reported as a `.csv` file. 
 
 Note1: if you are using your own LDscore, please specify the number of SNPs used to generate the file in `M`.  
 Note2: if you do not wish to parallelise over cores, set `nCores=1`.  
+
+## Example script
+```
+library(lhcMR)
+
+## Set up a working directory where all the analysis files will be printed
+setwd("~/BWeightDM/") 
+
+## Read in summary statistics file, here we use Neale UKBB data 
+X = data.table::fread(cmd = "zcat < ~/data/20022_irnt.gwas.imputed_v3.both_sexes.tsv.bgz")
+Y = data.table::fread(cmd = "zcat < ~/data/2443.gwas.imputed_v3.both_sexes.tsv.bgz")
+
+## To make sure we have all the columns needed (including allele data), we merge with Neale-provided variants file
+VAR = data.table::fread(cmd = "zcat < ~/data/variants.tsv.bgz")
+VAR$chr=as.numeric(VAR$chr)
+X = dplyr::inner_join(X,VAR[,c(1:6)])
+Y = dplyr::inner_join(Y,VAR[,c(1:6)])
+
+## File paths needed for the analysis
+LD.filepath = "~/data/LDscores_filtered.csv" # LD scores
+rho.filepath = "~/data/LD_GM2_2prm.csv" # local/SNP-specfic LD scores
+
+ld = "~/genomicSEM/data/eur_w_ld_chr/"
+hm3 = "~/genomicSEM/data/w_hm3.noMHC.snplist"
+
+trait.names=c("BWeight","DM")
+rm(VAR) # to free up space
+
+## Step 1
+input.files = list(X,Y)
+df = merge_sumstats(input.files,trait.names,LD.filepath,rho.filepath)
+
+## Step 2
+SP_list = calculate_SP(df,trait.names,run_ldsc=TRUE,run_MR=TRUE,hm3=hm3,ld=ld,nStep = 2,
+                       SP_single=3,SP_pair=50,SNP_filter=10)
+
+## Step 3
+res = lhc_mr(SP_list, trait.names, paral_method="rslurm", nBlock=200)
+
+```
 
 ## Citation
 Out manuscript is under review, but you can read our pre-print [here](https://www.medrxiv.org/content/10.1101/2020.01.27.20018929v3).
