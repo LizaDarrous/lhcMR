@@ -90,7 +90,8 @@ To speed up the single trait (or pair-trait analysis in step 3), the data input 
 
 `SP_pair` indicates how many sets of starting points should be generated from all these parameters (generated with small noise added or randomly). If `nStep=1`, we advise to have more starting points `80-100`, whereas if `nStep=2` the value can be 50 or higher.
 `saveRFiles=TRUE` will write the results of the previous functions as `.csv` files in your working directory.  
-Note: if you are using your own LDscore, please specify the number of SNPs used to generate the file in `M`.
+Note1: if you are using your own LDscore, please specify the number of SNPs used to generate the file in `M`.  
+Note2: if you do not wish to parallelise over cores, set `nCores=1`.  
 
 This function returns a list containing `iX,iY,piX,piY` to be fixed in the optimisation of the next step, as well as the n-th SNP filtered data frame `input.df_filtered` and the generated starting points matrix `sp_mat`. On top of that, the values of the IVW estimated bidirectional effect `axy_MR,ayx_MR` and the cross-trait intercept `iXY` are reported. 
 
@@ -101,7 +102,8 @@ Otherwise if `paral_method="lapply"` then the `parallel::mclapply` function is u
 
 The results of the optimisation over the starting points, as well as the block jackknife optimisation are written as `.csv` files. The summary calculations of the block jackknife procedure is also reported as a `.csv` file, and finally the parameter estimates, their SE and p-values are printed out and reported as a `.csv` file. 
 
-Note: if you are using your own LDscore, please specify the number of SNPs used to generate the file in `M`.
+Note1: if you are using your own LDscore, please specify the number of SNPs used to generate the file in `M`.  
+Note2: if you do not wish to parallelise over cores, set `nCores=1`.  
 
 ## Citation
 Out manuscript is under review, but you can read our pre-print [here](https://www.medrxiv.org/content/10.1101/2020.01.27.20018929v3).
