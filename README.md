@@ -45,11 +45,11 @@ The paths for two files should be provided first in the data merging file to sel
 
 - LDfile: 
 
-> To generate our own LDscore, we first took 4,773,627 SNPs with info (imputation certainty measure) ≥ 0.99 present in the association summary files from the second round of GWAS by the Neale lab. This set was restricted to 4,650,107 common, high-quality SNPs, defined as being present in both UK10K and UK Biobank, having MAF > 1% in both data sets, non-significant (Pdiff > 0.05) allele frequency difference between UK Biobank and UK10K and residing outside the HLA region (chr6:28.5-33.5Mb). For these SNPs, LD scores and regression weights were computed based on 3,781 individuals from the UK10K study. These LDscores can be downloaded [here](https://drive.google.com/file/d/1uua6zIournPvcJAs-QVWs8pTUVLtZ5Ym/view?usp=sharing). Users can also use the classical LD scores from the [Broad Insititue](https://data.broadinstitute.org/alkesgroup/LDSCORE/).
+> To generate our own LDscore, we first took 4,773,627 SNPs with info (imputation certainty measure) ≥ 0.99 present in the association summary files from the second round of GWAS by the Neale lab. This set was restricted to 4,650,107 common, high-quality SNPs, defined as being present in both UK10K and UK Biobank, having MAF > 1% in both data sets, non-significant (Pdiff > 0.05) allele frequency difference between UK Biobank and UK10K and residing outside the HLA region (chr6:28.5-33.5Mb). For these SNPs, LD scores and regression weights were computed based on 3,781 individuals from the UK10K study. These LDscores can be downloaded [here](https://drive.google.com/file/d/1_B8DsGejRpeiW3XxNERWpmSQH2a8NWqS/view?usp=sharing). Users can also use the classical LD scores from the [Broad Insititue](https://data.broadinstitute.org/alkesgroup/LDSCORE/).
 
 - Local LD pattern (`Rho`) for each SNP
 
-> To estimate the local LD distribution for each SNP (k), characterised by (`π_k`,`σ^2_k`), we fitted a two-component Gaussian mixture distribution to the observed local correlations (focal SNP +/− 2’500 markers with MAF≥ 0.5% in the UK10K): (1) one Gaussian component corresponding to zero correlations, reflecting only measurement noise (whose variance is proportional to the inverse of the reference panel size) and (2) a second component with zero mean and a larger variance than the first component (encompassing measurement noise plus non-zero LD). These local LDscores can be downloaded [here](https://drive.google.com/file/d/1uua6zIournPvcJAs-QVWs8pTUVLtZ5Ym/view?usp=sharing).
+> To estimate the local LD distribution for each SNP (k), characterised by (`π_k`,`σ^2_k`), we fitted a two-component Gaussian mixture distribution to the observed local correlations (focal SNP +/− 2’500 markers with MAF≥ 0.5% in the UK10K): (1) one Gaussian component corresponding to zero correlations, reflecting only measurement noise (whose variance is proportional to the inverse of the reference panel size) and (2) a second component with zero mean and a larger variance than the first component (encompassing measurement noise plus non-zero LD). These local LDscores can be downloaded [here](https://drive.google.com/file/d/1PwsJ2KiCR2VDVOodEXnQu6Tec54a0HC1/view?usp=sharing).
 
 
 ##### 3. Input files for LDSC (ld & hm3):
@@ -129,10 +129,10 @@ rho.filepath = "~/data/LD_GM2_2prm.csv" # local/SNP-specfic LD scores
 ld = "~/genomicSEM/data/eur_w_ld_chr/"
 hm3 = "~/genomicSEM/data/w_hm3.noMHC.snplist"
 
-trait.names=c("BWeight","DM")
 rm(VAR) # to free up space
 
 ## Step 1
+trait.names=c("BWeight","DM")
 input.files = list(X,Y)
 df = merge_sumstats(input.files,trait.names,LD.filepath,rho.filepath)
 
@@ -146,7 +146,7 @@ res = lhc_mr(SP_list, trait.names, paral_method="rslurm", nBlock=200)
 ```
 
 ## Citation
-Out manuscript is under review, but you can read our pre-print [here](https://www.medrxiv.org/content/10.1101/2020.01.27.20018929v3).
+Our manuscript is under review, but you can read our pre-print [here](https://www.medrxiv.org/content/10.1101/2020.01.27.20018929v3).
 
 ## Contact
 Liza Darrous <darrous.liza@gmail.com>
