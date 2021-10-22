@@ -44,8 +44,8 @@ calculate_SP <- function(input.df,trait.names,run_ldsc=TRUE,run_MR=TRUE,saveRFil
     }
   }
 
-  if(is.na(SNP_filter_ldscMR)){SNP_filter_ldscMR = SNP_filter}
-  if(SNP_filter_ldscMR<1 | SNP_filter <1){
+  if(is.na(SNP_filter_ldsc)){SNP_filter_ldsc = SNP_filter}
+  if(SNP_filter_ldsc<1 | SNP_filter <1){
     cat(print("Please choose a value equal to or greater than 1 for the thinning of every nth SNP\n"))
     stop()
   }
@@ -54,7 +54,7 @@ calculate_SP <- function(input.df,trait.names,run_ldsc=TRUE,run_MR=TRUE,saveRFil
   OUT = trait.names[2]
 
   # Get estimates of starting points from LDSC and standard MR method (IVW)
-  SP = gettingSP_ldscMR(input.df,trait.names,run_ldsc,run_MR,saveRFiles,SNP_filter_ldscMR,hm3,ld)
+  SP = gettingSP_ldscMR(input.df,trait.names,run_ldsc,run_MR,saveRFiles,SNP_filter_ldsc,hm3,ld)
   i_XY = as.numeric(SP[[1]])
   axy_MR = as.numeric(SP[[2]])
   ayx_MR = as.numeric(SP[[3]])
