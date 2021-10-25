@@ -14,7 +14,7 @@
 #' @return
 #' @keywords internal
 # NOT EXPORTED @export
-gettingSP_ldscMR = function(input.df,trait.names,run_ldsc=TRUE,run_MR=TRUE,saveRFiles=TRUE,SNP_filter_ldscMR,hm3,ld){
+gettingSP_ldscMR = function(input.df,trait.names,run_ldsc=TRUE,run_MR=TRUE,saveRFiles=TRUE,SNP_filter_ldsc,hm3,ld){
 
   EXP = trait.names[1]
   OUT = trait.names[2]
@@ -34,10 +34,10 @@ gettingSP_ldscMR = function(input.df,trait.names,run_ldsc=TRUE,run_MR=TRUE,saveR
   if(run_ldsc){
     # Slice, every 10th SNP for faster computation
     X %>%
-      slice(seq(1, nrow(X), by=SNP_filter_ldscMR)) -> X_filtered
+      slice(seq(1, nrow(X), by=SNP_filter_ldsc)) -> X_filtered
     #nrow(X_filtered)
     Y %>%
-      slice(seq(1, nrow(Y), by=SNP_filter_ldscMR)) -> Y_filtered
+      slice(seq(1, nrow(Y), by=SNP_filter_ldsc)) -> Y_filtered
     #nrow(Y_filtered)
 
     write.table(X_filtered, file = paste0(EXP, "_GWAS.txt"), sep = "\t", quote = FALSE, row.names = FALSE, col.names=TRUE)

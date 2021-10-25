@@ -16,6 +16,7 @@ calculate_SP(
   SP_single = 3,
   SP_pair = 50,
   SNP_filter = 10,
+  SNP_filter_ldsc = NA,
   nCores = NA,
   M = 1e+07
 )
@@ -44,6 +45,8 @@ their values in the likelihood optimisation and parameter estimation}
 \item{SP_pair}{Numerical value indicating how many starting points should the pair trait analysis use in the likelihood optimisation. Best to range between 50-100, default value = 50}
 
 \item{SNP_filter}{Numerical value indicating the filtering of every nth SNP to reduce large datasets and speed up analysis. Default value = 10}
+
+\item{SNP_filter_ldsc}{Numerical value indicating the filtering of every nth SNP to reduce large datasets and speed up the LDSC analysis. Set to 1 if no filtering is needed, otherwise default = 10}
 
 \item{nCores}{Numerical value indicating number of cores to be used in 'mclapply' to parallelise the analysis. If not set (default value = NA), then it will be calculated as 2/3 of the available cores}
 

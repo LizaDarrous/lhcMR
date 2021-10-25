@@ -10,6 +10,7 @@ gettingSP_ldscMR(
   run_ldsc = TRUE,
   run_MR = TRUE,
   saveRFiles = TRUE,
+  SNP_filter_ldsc,
   hm3,
   ld
 )
