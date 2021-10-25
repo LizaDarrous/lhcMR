@@ -74,7 +74,7 @@ uses the previously generated data frame to smartly generate starting points (SP
 -   `lhc_mr()` 
 main function that uses the input data frame and the stating points to optimize the likelihood function and estimate the parameters (most notably the bidirectional causal effect, confounder effect and total trait heritability), as well as their standard error (SE) using block jackknife.
 
-On overview of the usage of each is provided in the [manual](doc/lhcMR_manual.pdf), and their description and input parameters are detailed in the steps below:  
+On overview of the usage of each is provided in the [manual](doc/lhcMR_manualv2.pdf), and their description and input parameters are detailed in the steps below:  
 **Note1**: we advise to run the analysis on a master node instead of a worker node, especially if you choose to run the parallelisation using the `lapply` option in Step 3 in order to have access to cores.  
 **Note2**: if running the analysis on a worker node with large summary statistics files (such as UKBiobank), it's best to allocate at least 15GB of memory.
 
