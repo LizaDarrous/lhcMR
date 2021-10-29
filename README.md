@@ -129,7 +129,7 @@ LD.filepath = "~/data/LDscores_filtered.csv" # LD scores
 rho.filepath = "~/data/LD_GM2_2prm.csv" # local/SNP-specfic LD scores
 
 ld = "~/genomicSEM/data/eur_w_ld_chr/"
-hm3 = "~/genomicSEM/data/w_hm3.noMHC.snplist"
+hm3 = "~/genomicSEM/data/w_hm3.snplist"
 
 rm(VAR) # to free up space
 
