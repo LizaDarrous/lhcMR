@@ -8,6 +8,7 @@ lhc_mr(
   SP_list,
   trait.names,
   partition = NA,
+  account = NA,
   paral_method = "rslurm",
   nCores = NA,
   nBlock = 200,
@@ -16,11 +17,13 @@ lhc_mr(
 }
 \arguments{
 \item{SP_list}{List resulting from calculate_SP. Contains the filtered dataset (by every 'SNP_filter'th SNP), the starting points to be used in the pair trait optimisation, the traits' intercepts,
-the traits' polygenicity if nStep = 2, as well as some extra parameters like the cross-trait intercept and bidirectional causal effect estimated by IVW.}
+the traits' polygenicity if nStep = 2, as well as some extra parameters like the cross-trait intercept and bidirectional causal effect estimated by IVW}
 
 \item{trait.names}{Vector containing the trait names in the order they were used in merge_sumstats(): Exposure, Outcome}
 
-\item{partition}{String indicating the partition name to be used for the "rslurm" parallelisation}
+\item{partition}{String indicating the partition name to be used for the "rslurm" parallelisation - equivalent to '-p, --partition' in SLURM commands}
+
+\item{account}{String indicating the account name to be used for the "rslurm" parallelisation - equivalent to '-A, --account' in SLURM commands}
 
 \item{paral_method}{String indicating which method to parallelise the optimisation over the number of sets of starting points. "rslurm" will submit the calculation to a SLurm cluster using
 a 'Slurm' workload manager, "lapply" will parallelise the optimisation using 'mclapply' over a set number of cores but will go sequentially over the sets of starting points and thus take more time.}

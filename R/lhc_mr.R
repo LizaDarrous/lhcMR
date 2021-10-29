@@ -1,9 +1,10 @@
 #' Main trait pair analysis using LHC-MR
 #'
 #' @param SP_list List resulting from calculate_SP. Contains the filtered dataset (by every 'SNP_filter'th SNP), the starting points to be used in the pair trait optimisation, the traits' intercepts,
-#' the traits' polygenicity if nStep = 2, as well as some extra parameters like the cross-trait intercept and bidirectional causal effect estimated by IVW.
+#' the traits' polygenicity if nStep = 2, as well as some extra parameters like the cross-trait intercept and bidirectional causal effect estimated by IVW
 #' @param trait.names Vector containing the trait names in the order they were used in merge_sumstats(): Exposure, Outcome
-#' @param partition String indicating the partition name to be used for the "rslurm" parallelisation
+#' @param partition String indicating the partition name to be used for the "rslurm" parallelisation - equivalent to '-p, --partition' in SLURM commands
+#' @param account String indicating the account name to be used for the "rslurm" parallelisation - equivalent to '-A, --account' in SLURM commands
 #' @param paral_method String indicating which method to parallelise the optimisation over the number of sets of starting points. "rslurm" will submit the calculation to a SLurm cluster using
 #' a 'Slurm' workload manager, "lapply" will parallelise the optimisation using 'mclapply' over a set number of cores but will go sequentially over the sets of starting points and thus take more time.
 #' @param nCores Numerical value indicating number of cores to be used in 'mclapply' to parallelise the analysis. If not set (default value = NA), then it will be calculated as 2/3 of the available cores
@@ -23,7 +24,7 @@
 #' @importFrom parallel mclapply detectCores
 #'
 #' @examples
-lhc_mr = function(SP_list,trait.names,partition=NA,paral_method="rslurm",nCores=NA,nBlock=200,M=1e7){
+lhc_mr = function(SP_list,trait.names,partition=NA,account=NA,paral_method="rslurm",nCores=NA,nBlock=200,M=1e7){
 
   input.df_filtered = SP_list$input.df_filtered
   SP_matrix = SP_list$sp_mat
@@ -113,7 +114,7 @@ lhc_mr = function(SP_list,trait.names,partition=NA,paral_method="rslurm",nCores=
       sjob = slurm_apply(f = slurm_pairTrait_twoStep_likelihood, params = par.df, jobname = paste0(EXP,"_",OUT,"_optim"), nodes = SP_pair, cpus_per_node = 1,
                          global_objects = c("betXY","pi1","sig1","w8s","m0","M","nX","nY","piU","piX","piY",
                                          "iX","iY","param","bn","bins","parscale2"),
-                         slurm_options = list(partition = partition),
+                         slurm_options = list(partition = partition, account = account),
                          submit = TRUE)
       # Keep a loop open till the job is completely done.
       wait_counter = 0
