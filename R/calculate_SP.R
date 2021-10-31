@@ -15,7 +15,7 @@
 #' @param SP_pair Numerical value indicating how many starting points should the pair trait analysis use in the likelihood optimisation. Best to range between 50-100, default value = 50
 #' @param SNP_filter Numerical value indicating the filtering of every nth SNP to reduce large datasets and speed up analysis. Default value = 10
 #' @param SNP_filter_ldsc Numerical value indicating the filtering of every nth SNP to reduce large datasets and speed up the LDSC analysis. Set to 1 if no filtering is needed, otherwise default = 10
-#' @param nCores Numerical value indicating number of cores to be used in 'mclapply' to parallelise the analysis. If not set (default value = NA), then it will be calculated as 2/3 of the available cores
+#' @param nCores Numerical value indicating number of cores to be used in 'mclapply' to parallelise the analysis. If set to NA, then it will be calculated as 2/3 of the available cores, default value = 1 to avoid parallelisation
 #' @param M Numerical value indicating the number of SNPs used to calculate the LD reported in the LD file (for genotyped SNPs). Default value = 1e7
 
 #'
@@ -28,7 +28,7 @@
 #'
 #' @examples
 calculate_SP <- function(input.df,trait.names,run_ldsc=TRUE,run_MR=TRUE,saveRFiles=TRUE,hm3=NA,ld=NA,nStep=2,
-                         SP_single=3,SP_pair=50,SNP_filter=10,SNP_filter_ldsc=NA,nCores=NA,M=1e7){
+                         SP_single=3,SP_pair=50,SNP_filter=10,SNP_filter_ldsc=NA,nCores=1,M=1e7){
 
   if(nStep>2 || nStep<1){
     cat(print("Please choose 1 or 2 for the number of analysis steps\n"))

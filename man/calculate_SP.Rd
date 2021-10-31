@@ -17,7 +17,7 @@ calculate_SP(
   SP_pair = 50,
   SNP_filter = 10,
   SNP_filter_ldsc = NA,
-  nCores = NA,
+  nCores = 1,
   M = 1e+07
 )
 }
@@ -48,7 +48,7 @@ their values in the likelihood optimisation and parameter estimation}
 
 \item{SNP_filter_ldsc}{Numerical value indicating the filtering of every nth SNP to reduce large datasets and speed up the LDSC analysis. Set to 1 if no filtering is needed, otherwise default = 10}
 
-\item{nCores}{Numerical value indicating number of cores to be used in 'mclapply' to parallelise the analysis. If not set (default value = NA), then it will be calculated as 2/3 of the available cores}
+\item{nCores}{Numerical value indicating number of cores to be used in 'mclapply' to parallelise the analysis. If set to NA, then it will be calculated as 2/3 of the available cores, default value = 1 to avoid parallelisation}
 
 \item{M}{Numerical value indicating the number of SNPs used to calculate the LD reported in the LD file (for genotyped SNPs). Default value = 1e7}
 }
