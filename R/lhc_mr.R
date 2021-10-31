@@ -111,7 +111,7 @@ lhc_mr = function(SP_list,trait.names,partition=NA,account=NA,paral_method="rslu
 
     if(paral_method=="rslurm"){
       cat(print("Running optimisation"))
-      sjob = slurm_apply(f = lhcMslurm_pairTrait_twoStep_likelihood, params = par.df, jobname = paste0(EXP,"_",OUT,"_optim"), nodes = SP_pair, cpus_per_node = 1,
+      sjob = slurm_apply(f = slurm_pairTrait_twoStep_likelihood, params = par.df, jobname = paste0(EXP,"_",OUT,"_optim"), nodes = SP_pair, cpus_per_node = 1,
                          global_objects = c("betXY","pi1","sig1","w8s","m0","M","nX","nY","piU","piX","piY",
                                          "iX","iY","param","bn","bins","parscale2"),
                          slurm_options = list(partition = partition, account = account),
