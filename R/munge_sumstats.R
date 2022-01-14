@@ -23,6 +23,9 @@ munge_sumstats <- function(input.files,trait.names){
     file = input.files[[i]]
     Xcols = toupper(names(file))
     namesX = Xcols
+    calc_TSTAT = FALSE
+    calc_PVAL = FALSE
+    
     #RSID
     if("RSID" %in% Xcols){cat(print(paste0("Interpreting the RSID column as the SNP column in ",trait.names[i],".")),file=log.file,sep="\n",append=TRUE)
     }else{
@@ -51,8 +54,7 @@ munge_sumstats <- function(input.files,trait.names){
       Xcols[Xcols %in% c("TSTAT","Z","ZSCORE","ZSTAT","ZSTATISTIC")] <- "TSTAT"
       if(length(base::setdiff(namesX,Xcols)) > 0) cat(print(paste0("Interpreting the ", setdiff(namesX, Xcols), " column in ", trait.names[i] ," as the standardised effect column.")),file=log.file,sep="\n",append=TRUE)
     }else{
-      input.files[[i]]$TSTAT = input.files[[i]]$BETA/input.files[[i]]$SE
-      Xcols = c(Xcols,"TSTAT")
+      calc_TSTAT = TRUE
       cat(print(paste0("Calculated the standardised effect column in ", trait.names[i] ,".")),file=log.file,sep="\n",append=TRUE)
     }
     namesX = Xcols
@@ -62,8 +64,7 @@ munge_sumstats <- function(input.files,trait.names){
       Xcols[Xcols %in% c("P","PVALUE","PVAL","P_VALUE","P-VALUE","P.VALUE","P_VAL","GC_PVALUE","WALD_P","P_BETA_WF")] <- "PVAL"
       if(length(base::setdiff(namesX,Xcols)) > 0) cat(print(paste0("Interpreting the ", setdiff(namesX, Xcols), " column in ", trait.names[i] ," as the P-value column.")),file=log.file,sep="\n",append=TRUE)
     }else{
-      input.files[[i]]$PVAL = 2*pnorm(-abs(input.files[[i]]$TSTAT))
-      Xcols = c(Xcols,"PVAL")
+      calc_PVAL = TRUE
       cat(print(paste0("Calculated the p-value column in ", trait.names[i] ,".")),file=log.file,sep="\n",append=TRUE)
     }
     namesX = Xcols
@@ -102,6 +103,18 @@ munge_sumstats <- function(input.files,trait.names){
       if(length(base::setdiff(namesX,Xcols)) > 0) cat(print(paste0("Interpreting the ", setdiff(namesX, Xcols), " column in ", trait.names[i] ," as the base pair/position column.")),file=log.file,sep="\n",append=TRUE)
     }
     namesX = Xcols
+    
+    # Replace the original column names
+    names(input.files[[i]]) <- Xcols
+    # Calculate any missing variables
+    if(calc_TSTAT){
+      input.files[[i]]$TSTAT = input.files[[i]]$BETA/input.files[[i]]$SE
+      #Xcols = c(Xcols,"TSTAT")
+    }
+    if(calc_PVAL){
+      input.files[[i]]$PVAL = 2*pnorm(-abs(input.files[[i]]$TSTAT))
+      #Xcols = c(Xcols,"PVAL")
+    }
 
     # Print a message for missing RSID, BETA, Pvalue, effect or other allele columns and sample size
     if(sum(Xcols %in% "RSID") == 0) cat(print(paste0('Cannot find an \'rsid\' column, try renaming it to RSID in the summary statistics file for:',trait.names[i])),file=log.file,sep="\n",append=TRUE)
@@ -132,9 +145,6 @@ munge_sumstats <- function(input.files,trait.names){
     if(sum(Xcols %in% "N") > 1) cat(print(paste0('Multiple columns are being interpreted as the sample size column. Try renaming the column you dont want interpreted as the sample size column to N2 for:',trait.names[i])),file=log.file,sep="\n",append=TRUE)
     if(sum(Xcols %in% "CHR") > 1) cat(print(paste0('Multiple columns are being interpreted as the chromosome column. Try renaming the column you dont want interpreted as the chromosome column to CHR2 for:',trait.names[i])),file=log.file,sep="\n",append=TRUE)
     if(sum(Xcols %in% "POS") > 1) cat(print(paste0('Multiple columns are being interpreted as the position column. Try renaming the column you dont want interpreted as the position column to POS2 for:',trait.names[i])),file=log.file,sep="\n",append=TRUE)
-
-    # Replace the original column names
-    names(input.files[[i]]) <- Xcols
 
   }
   close(log.file)
