@@ -25,6 +25,9 @@ munge_sumstats <- function(input.files,trait.names){
     file = input.files[[i]]
     Xcols = toupper(names(file))
     namesX = Xcols
+    calc_TSTAT = FALSE
+    calc_PVAL = FALSE
+    
     #RSID
     if("RSID" %in% Xcols){cat(print(paste0("Interpreting the RSID column as the SNP column in ",trait.names[i],".")),file=log.file,sep="\n",append=TRUE)
     }else{
@@ -102,6 +105,18 @@ munge_sumstats <- function(input.files,trait.names){
       if(length(base::setdiff(namesX,Xcols)) > 0) cat(print(paste0("Interpreting the ", setdiff(namesX, Xcols), " column in ", trait.names[i] ," as the base pair/position column.")),file=log.file,sep="\n",append=TRUE)
     }
     namesX = Xcols
+    
+    # Replace the original column names
+    names(input.files[[i]]) <- Xcols
+    # Calculate any missing variables
+    if(calc_TSTAT){
+      input.files[[i]]$TSTAT = input.files[[i]]$BETA/input.files[[i]]$SE
+      #Xcols = c(Xcols,"TSTAT")
+    }
+    if(calc_PVAL){
+      input.files[[i]]$PVAL = 2*pnorm(-abs(input.files[[i]]$TSTAT))
+      #Xcols = c(Xcols,"PVAL")
+    }
 
     # Replace the original column names
     names(input.files[[i]]) <- Xcols
@@ -119,7 +134,7 @@ munge_sumstats <- function(input.files,trait.names){
     # Print a message for missing RSID, BETA, Pvalue, effect or other allele columns and sample size
     if(sum(Xcols %in% "RSID") == 0) cat(print(paste0('Cannot find an \'rsid\' column, try renaming it to RSID in the summary statistics file for:',trait.names[i])),file=log.file,sep="\n",append=TRUE)
     if(sum(Xcols %in% "BETA") == 0) cat(print(paste0('Cannot find an \'effect\' column, try renaming it to BETA in the summary statistics file for:',trait.names[i])),file=log.file,sep="\n",append=TRUE)
-    if(sum(Xcols %in% "PVAL") == 0) cat(print(paste0('Cannot find a \'Pvalue\' column, try renaming it to PVAL in the summary statistics file for:',trait.names[i])),file=log.file,sep="\n",append=TRUE)
+    #if(sum(Xcols %in% "PVAL") == 0) cat(print(paste0('Cannot find a \'Pvalue\' column, try renaming it to PVAL in the summary statistics file for:',trait.names[i])),file=log.file,sep="\n",append=TRUE)
     if(sum(Xcols %in% "A1") == 0) cat(print(paste0('Cannot find an \'effect allele\' column, try renaming it to A1 in the summary statistics file for:',trait.names[i])),file=log.file,sep="\n",append=TRUE)
     if(sum(Xcols %in% "A2") == 0) cat(print(paste0('Cannot find an \'other allele\' column, try renaming it to A2 in the summary statistics file for:',trait.names[i])),file=log.file,sep="\n",append=TRUE)
     if(sum(Xcols %in% "N") == 0) cat(print(paste0('Cannot find a \'sample size\' column, try renaming it to N in the summary statistics file for:',trait.names[i])),file=log.file,sep="\n",append=TRUE)
@@ -129,7 +144,7 @@ munge_sumstats <- function(input.files,trait.names){
     # Throw warnings for missing RSID, BETA, Pvalue, effect or other allele columns and sample size
     if(sum(Xcols %in% "RSID") == 0) warning(paste0('Cannot find an \'rsid\' column, try renaming it to RSID in the summary statistics file for:',trait.names[i]))
     if(sum(Xcols %in% "BETA") == 0) warning(paste0('Cannot find an \'effect\' column, try renaming it to BETA in the summary statistics file for:',trait.names[i]))
-    if(sum(Xcols %in% "PVAL") == 0) warning(paste0('Cannot find a \'Pvalue\' column, try renaming it to PVAL in the summary statistics file for:',trait.names[i]))
+    #if(sum(Xcols %in% "PVAL") == 0) warning(paste0('Cannot find a \'Pvalue\' column, try renaming it to PVAL in the summary statistics file for:',trait.names[i]))
     if(sum(Xcols %in% "A1") == 0) warning(paste0('Cannot find an \'effect allele\' column, try renaming it to A1 in the summary statistics file for:',trait.names[i]))
     if(sum(Xcols %in% "A2") == 0) warning(paste0('Cannot find an \'other allele\' column, try renaming it to A2 in the summary statistics file for:',trait.names[i]))
     if(sum(Xcols %in% "N") == 0) warning(paste0('Cannot find a \'sample size\' column, try renaming it to N in the summary statistics file for:',trait.names[i]))
@@ -139,7 +154,7 @@ munge_sumstats <- function(input.files,trait.names){
     # Print a warning message when multiple columns are interpreted as RSID, BETA, Pvalue, effect or other allele columns and sample size
     if(sum(Xcols %in% "RSID") > 1) cat(print(paste0('Multiple columns are being interpreted as the rsid column. Try renaming the column you dont want interpreted as the rsid to RSID2 for:',trait.names[i])),file=log.file,sep="\n",append=TRUE)
     if(sum(Xcols %in% "BETA") > 1) cat(print(paste0('Multiple columns are being interpreted as the beta or effect column. Try renaming the column you dont want interpreted as the beta or effect column to BETA2 for:',trait.names[i])),file=log.file,sep="\n",append=TRUE)
-    if(sum(Xcols %in% "PVAL") > 1) cat(print(paste0('Multiple columns are being interpreted as the Pvalue column. Try renaming the column you dont want interpreted as PVAL to PVAL2 for:',trait.names[i])),file=log.file,sep="\n",append=TRUE)
+    #if(sum(Xcols %in% "PVAL") > 1) cat(print(paste0('Multiple columns are being interpreted as the Pvalue column. Try renaming the column you dont want interpreted as PVAL to PVAL2 for:',trait.names[i])),file=log.file,sep="\n",append=TRUE)
     if(sum(Xcols %in% "A1") > 1) cat(print(paste0('Multiple columns are being interpreted as the effect allele column. Try renaming the column you dont want interpreted as effect allele column to A1_2 for:',trait.names[i])),file=log.file,sep="\n",append=TRUE)
     if(sum(Xcols %in% "A2") > 1) cat(print(paste0('Multiple columns are being interpreted as the other allele column. Try renaming the column you dont want interpreted as the other allele column to A2_2 for:',trait.names[i])),file=log.file,sep="\n",append=TRUE)
     if(sum(Xcols %in% "N") > 1) cat(print(paste0('Multiple columns are being interpreted as the sample size column. Try renaming the column you dont want interpreted as the sample size column to N2 for:',trait.names[i])),file=log.file,sep="\n",append=TRUE)
