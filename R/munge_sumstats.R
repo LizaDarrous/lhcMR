@@ -18,8 +18,6 @@ munge_sumstats <- function(input.files,trait.names){
   cat(print(paste0("Munging ", length(trait.names), " summary statistics files: ",log.name, ", started at ",begin.time), sep = ""),file=log.file,sep="\n",append=TRUE)
   cat(paste0("     "),file=log.file,sep="\n",append=TRUE)
 
-  calc_TSTAT = FALSE
-  calc_PVAL = FALSE
   # for loop over the trait names (i)
   for(i in 1:length(trait.names)){
     file = input.files[[i]]
@@ -27,7 +25,7 @@ munge_sumstats <- function(input.files,trait.names){
     namesX = Xcols
     calc_TSTAT = FALSE
     calc_PVAL = FALSE
-    
+
     #RSID
     if("RSID" %in% Xcols){cat(print(paste0("Interpreting the RSID column as the SNP column in ",trait.names[i],".")),file=log.file,sep="\n",append=TRUE)
     }else{
@@ -105,7 +103,7 @@ munge_sumstats <- function(input.files,trait.names){
       if(length(base::setdiff(namesX,Xcols)) > 0) cat(print(paste0("Interpreting the ", setdiff(namesX, Xcols), " column in ", trait.names[i] ," as the base pair/position column.")),file=log.file,sep="\n",append=TRUE)
     }
     namesX = Xcols
-    
+
     # Replace the original column names
     names(input.files[[i]]) <- Xcols
     # Calculate any missing variables
