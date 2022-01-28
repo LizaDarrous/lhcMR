@@ -106,18 +106,6 @@ munge_sumstats <- function(input.files,trait.names){
 
     # Replace the original column names
     names(input.files[[i]]) <- Xcols
-    # Calculate any missing variables
-    if(calc_TSTAT){
-      input.files[[i]]$TSTAT = input.files[[i]]$BETA/input.files[[i]]$SE
-      #Xcols = c(Xcols,"TSTAT")
-    }
-    if(calc_PVAL){
-      input.files[[i]]$PVAL = 2*pnorm(-abs(input.files[[i]]$TSTAT))
-      #Xcols = c(Xcols,"PVAL")
-    }
-
-    # Replace the original column names
-    names(input.files[[i]]) <- Xcols
 
     # Calculate any missing variables
     if(calc_TSTAT){
