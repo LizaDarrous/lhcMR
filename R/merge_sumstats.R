@@ -33,24 +33,24 @@ merge_sumstats <- function(input.files,trait.names,LD.filepath,rho.filepath,mafT
 
   # Remove the HLA region due to highly associated SNPs
   LDfile_ind = which(!(LDfile$CHR==6 & LDfile$POS>=28.5e6 & LDfile$POS<=33.5e6))
-  LDfile = LDfile[LDfile_ind]
+  LDfile1 = LDfile[LDfile_ind,]
 
   # Filter for MAF/info if columns are present + order by chr/pos before slicing
   if("MAF" %in% colnames(Xfile)){
     Xfile_ind = which(Xfile$MAF>mafT)
-    Xfile = Xfile[Xfile_ind]
+    Xfile = Xfile[Xfile_ind,]
   }
   if("MAF" %in% colnames(Yfile)){
     Yfile_ind = which(Yfile$MAF>mafT)
-    Yfile = Yfile[Yfile_ind]
+    Yfile = Yfile[Yfile_ind,]
   }
   if("INFO" %in% colnames(Xfile)){
     Xfile_ind = which(Xfile$INFO>infoT)
-    Xfile = Xfile[Xfile_ind]
+    Xfile = Xfile[Xfile_ind,]
   }
   if("INFO" %in% colnames(Yfile)){
     Yfile_ind = which(Yfile$INFO>infoT)
-    Yfile = Yfile[Yfile_ind]
+    Yfile = Yfile[Yfile_ind,]
   }
 
   # Join the exposure and outcome files
