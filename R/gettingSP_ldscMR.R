@@ -220,7 +220,7 @@ gettingSP_ldscMR = function(input.df,trait.names,run_ldsc=TRUE,run_MR=TRUE,saveR
     mr_ind=unlist(prune_X(mr_dataX$tstat,pval))
     print(length(mr_ind))
     if(length(mr_ind)==0){
-      mr_ind=unlist(prune_X(mr_dataY$tstat,pval1))
+      mr_ind=unlist(prune_X(mr_dataX$tstat,pval1))
       print(length(mr_ind))
     }
     mr_dataX = mr_dataX[mr_ind,]
