@@ -24,7 +24,7 @@
 #' @importFrom parallel mclapply detectCores
 #'
 #' @examples
-lhc_mr = function(SP_list,trait.names,partition=NA,account=NA,paral_method="rslurm",nCores=NA,nBlock=200,M=1e7){
+lhc_mr = function(SP_list,trait.names,partition=NA,param="comp",account=NA,paral_method="rslurm",nCores=NA,nBlock=200,M=1e7){
 
   input.df_filtered = SP_list$input.df_filtered
   SP_matrix = SP_list$sp_mat
@@ -58,7 +58,7 @@ lhc_mr = function(SP_list,trait.names,partition=NA,account=NA,paral_method="rslu
   piU=0.1
   bn = 2^7
   bins = 10
-  param="comp" #possibility to develop nesting in later version
+  #param="comp" #possibility to develop nesting in later version
   EXP = trait.names[1]
   OUT = trait.names[2]
 
@@ -183,7 +183,7 @@ lhc_mr = function(SP_list,trait.names,partition=NA,account=NA,paral_method="rslu
         test = optim(theta, pairTrait_twoStep_likelihood,
                       betX=betXY, pi1=pi1, sig1=sig1, w8s=w8s, M=M,
                       m0=m0, nX=nX, nY=nY, pi_U=piU, pi_X=piX, pi_Y=piY, i_X=iX, i_Y=iY,
-                      bn=2^7, bins=10,
+                      bn=bn, bins=bins, model=param,
                       method = "Nelder-Mead",
                       control = list(maxit = 5e3,
                                      parscale = parscale2))
@@ -337,7 +337,7 @@ lhc_mr = function(SP_list,trait.names,partition=NA,account=NA,paral_method="rslu
         test = optim(theta, pairTrait_singleStep_likelihood,
                       betX=betXY, pi1=pi1, sig1=sig1, w8s=w8s, M=M,
                       m0=m0, nX=nX, nY=nY, pi_U=piU, i_X=iX, i_Y=iY,
-                      bn=2^7, bins=10,
+                      bn=bn, bins=bins, model=param,
                       method = "Nelder-Mead",
                       control = list(maxit = 5e3,
                                      parscale = parscale1))
