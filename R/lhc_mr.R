@@ -52,6 +52,9 @@ lhc_mr = function(SP_list,trait.names,partition=NA,account=NA,param="comp",paral
     }
   }
 
+  if(param=="U"){
+    SP_matrix = dplyr::select(as.data.frame(SP_matrix),-c(sp_tX,sp_tY))
+  }
   # Generate a dataframe of lists for each row of parameters - input for rslurm/lapply
   par.df = data.frame(par=I(apply(SP_matrix,1,as.list)))
 
@@ -91,7 +94,11 @@ lhc_mr = function(SP_list,trait.names,partition=NA,account=NA,param="comp",paral
 
   # Run analysis based on parallelisation method//number of steps
   if(nStep == 2){
-    parscale2 = c(1e-1,1e-1,1e-1,1e-1,1e-1,1e-1,1e-1)
+    if(param=="U"){
+      parscale2 = c(1e-1,1e-1,1e-1,1e-1,1e-1)
+    }else{
+      parscale2 = c(1e-1,1e-1,1e-1,1e-1,1e-1,1e-1,1e-1)
+    }
     assign(x="betXY", value=betXY, env=.GlobalEnv)
     assign(x="pi1", value=pi1, env=.GlobalEnv)
     assign(x="sig1", value=sig1, env=.GlobalEnv)
@@ -148,7 +155,11 @@ lhc_mr = function(SP_list,trait.names,partition=NA,account=NA,param="comp",paral
       # Running blockJK
       cat(print("Running block JK"))
       res_ordered = res_values[order(res_values$mLL, decreasing = F),]
-      sp_mat2 = dplyr::select(res_ordered,h2X,h2Y,tX,tY,axy,ayx,iXY)
+      if(param=="U"){
+        sp_mat2 = dplyr::select(res_ordered,h2X,h2Y,axy,ayx,iXY)
+      }else{
+        sp_mat2 = dplyr::select(res_ordered,h2X,h2Y,tX,tY,axy,ayx,iXY)
+      }
       sp_mat2 = sp_mat2[1,]
 
       par.df2 = data.frame(par=I(apply(sp_mat2,1,as.list)))
@@ -221,7 +232,11 @@ lhc_mr = function(SP_list,trait.names,partition=NA,account=NA,param="comp",paral
       # Running blockJK
       cat(print("Running block JK"))
       res_ordered = res_values[order(res_values$mLL, decreasing = F),]
-      sp_mat2 = dplyr::select(res_ordered,h2X,h2Y,tX,tY,axy,ayx,iXY)
+      if(param=="U"){
+        sp_mat2 = dplyr::select(res_ordered,h2X,h2Y,axy,ayx,iXY)
+      }else{
+        sp_mat2 = dplyr::select(res_ordered,h2X,h2Y,tX,tY,axy,ayx,iXY)
+      }
       sp_mat2 = sp_mat2[1,]
 
       par.df2 = data.frame(par=I(apply(sp_mat2,1,as.list)))
@@ -263,7 +278,11 @@ lhc_mr = function(SP_list,trait.names,partition=NA,account=NA,param="comp",paral
 
 
   if(nStep==1){
-    parscale1 = c(1e-4,1e-4,1e-1,1e-1,1e-1,1e-1,1e-1,1e-1,1e-1)
+    if(param=="U"){
+      parscale1 = c(1e-4,1e-4,1e-1,1e-1,1e-1,1e-1,1e-1)
+    }else{
+      parscale1 = c(1e-4,1e-4,1e-1,1e-1,1e-1,1e-1,1e-1,1e-1,1e-1)
+    }
     assign(x="betXY", value=betXY, env=.GlobalEnv)
     assign(x="pi1", value=pi1, env=.GlobalEnv)
     assign(x="sig1", value=sig1, env=.GlobalEnv)
@@ -322,7 +341,11 @@ lhc_mr = function(SP_list,trait.names,partition=NA,account=NA,param="comp",paral
       # Running blockJK
       cat(print("Running block JK"))
       res_ordered = res_values[order(res_values$mLL, decreasing = F),]
-      sp_mat2 = dplyr::select(res_ordered,piX,piY,h2X,h2Y,tX,tY,axy,ayx,iXY)
+      if(param=="U"){
+        sp_mat2 = dplyr::select(res_ordered,piX,piY,h2X,h2Y,axy,ayx,iXY)
+      }else{
+        sp_mat2 = dplyr::select(res_ordered,piX,piY,h2X,h2Y,tX,tY,axy,ayx,iXY)
+      }
       sp_mat2 = sp_mat2[1,]
 
       par.df2 = data.frame(par=I(apply(sp_mat2,1,as.list)))
@@ -405,7 +428,11 @@ lhc_mr = function(SP_list,trait.names,partition=NA,account=NA,param="comp",paral
       # Running blockJK
       cat(print("Running block JK"))
       res_ordered = res_values[order(res_values$mLL, decreasing = F),]
-      sp_mat2 = dplyr::select(res_ordered,piX,piY,h2X,h2Y,tX,tY,axy,ayx,iXY)
+      if(param=="U"){
+        sp_mat2 = dplyr::select(res_ordered,piX,piY,h2X,h2Y,axy,ayx,iXY)
+      }else{
+        sp_mat2 = dplyr::select(res_ordered,piX,piY,h2X,h2Y,tX,tY,axy,ayx,iXY)
+      }
       sp_mat2 = sp_mat2[1,]
 
       par.df2 = data.frame(par=I(apply(sp_mat2,1,as.list)))
