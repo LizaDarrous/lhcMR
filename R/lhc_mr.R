@@ -5,7 +5,8 @@
 #' @param trait.names Vector containing the trait names in the order they were used in merge_sumstats(): Exposure, Outcome
 #' @param partition String indicating the partition name to be used for the "rslurm" parallelisation - equivalent to '-p, --partition' in SLURM commands
 #' @param account String indicating the account name to be used for the "rslurm" parallelisation - equivalent to '-A, --account' in SLURM commands
-#' @param paral_method String indicating which method to parallelise the optimisation over the number of sets of starting points. "rslurm" will submit the calculation to a SLurm cluster using
+#' @param param String indicating which model the likelihood function will be optimised with, either "comp" by default or "U" for a no-confounder model
+#' @param paral_method String indicating which method to parallelise the optimisation over the number of sets of starting points. "rslurm" will submit the calculation to a SLURM cluster using
 #' a 'Slurm' workload manager, "lapply" will parallelise the optimisation using 'mclapply' over a set number of cores but will go sequentially over the sets of starting points and thus take more time.
 #' @param nCores Numerical value indicating number of cores to be used in 'mclapply' to parallelise the analysis. If not set (default value = NA), then it will be calculated as 2/3 of the available cores
 #' @param nBlock Numerical value indicating the number of blocks to create from the block jackknife analysis, where at each iteration one block is left out and the optimisation is ran again for a single starting
@@ -24,7 +25,7 @@
 #' @importFrom parallel mclapply detectCores
 #'
 #' @examples
-lhc_mr = function(SP_list,trait.names,partition=NA,param="comp",account=NA,paral_method="rslurm",nCores=NA,nBlock=200,M=1e7){
+lhc_mr = function(SP_list,trait.names,partition=NA,account=NA,param="comp",paral_method="rslurm",nCores=NA,nBlock=200,M=1e7){
 
   input.df_filtered = SP_list$input.df_filtered
   SP_matrix = SP_list$sp_mat

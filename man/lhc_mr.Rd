@@ -9,6 +9,7 @@ lhc_mr(
   trait.names,
   partition = NA,
   account = NA,
+  param = "comp",
   paral_method = "rslurm",
   nCores = NA,
   nBlock = 200,
@@ -25,7 +26,9 @@ the traits' polygenicity if nStep = 2, as well as some extra parameters like the
 
 \item{account}{String indicating the account name to be used for the "rslurm" parallelisation - equivalent to '-A, --account' in SLURM commands}
 
-\item{paral_method}{String indicating which method to parallelise the optimisation over the number of sets of starting points. "rslurm" will submit the calculation to a SLurm cluster using
+\item{param}{String indicating which model the likelihood function will be optimised with, either "comp" by default or "U" for a no-confounder model}
+
+\item{paral_method}{String indicating which method to parallelise the optimisation over the number of sets of starting points. "rslurm" will submit the calculation to a SLURM cluster using
 a 'Slurm' workload manager, "lapply" will parallelise the optimisation using 'mclapply' over a set number of cores but will go sequentially over the sets of starting points and thus take more time.}
 
 \item{nCores}{Numerical value indicating number of cores to be used in 'mclapply' to parallelise the analysis. If not set (default value = NA), then it will be calculated as 2/3 of the available cores}
