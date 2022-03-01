@@ -129,10 +129,16 @@ lhc_mr = function(SP_list,trait.names,partition=NA,param="comp",account=NA,paral
       # Get output of minus log likelihood (mLL) and estimated parameters from rslurm in the form of a table with nrows equal to nrows(par.df)
       res_temp = get_slurm_out(sjob, outtype = 'table')
       res_values = as.data.frame(do.call(rbind, res_temp[[1]]))
-      res_values %>%
-        dplyr::mutate(h2X = abs(h2X),
-               h2Y = abs(h2Y),
-               tX = abs(tX)) -> res_values
+      if(param=="U"){
+        res_values %>%
+          dplyr::mutate(h2X = abs(h2X),
+                        h2Y = abs(h2Y)) -> res_values
+      }else{
+        res_values %>%
+          dplyr::mutate(h2X = abs(h2X),
+                        h2Y = abs(h2Y),
+                        tX = abs(tX)) -> res_values
+      }
       res_values = cbind("SP"=c(1:nrow(res_values)),"mLL"=res_values[,1],"piX"=piX,"piY"=piY,res_values[,-1],"iX"=iX,"iY"=iY)
       write.csv(res_values, paste0("FullRes_",EXP,"-",OUT,".csv"), row.names = FALSE)
 
@@ -165,11 +171,16 @@ lhc_mr = function(SP_list,trait.names,partition=NA,param="comp",account=NA,paral
 
       res_temp2 = get_slurm_out(sjob2, outtype = 'table')
       res_values2 = as.data.frame(do.call(rbind, res_temp2[[1]]))
-      res_values2 %>%
-        dplyr::mutate(h2X = abs(h2X),
-               h2Y = abs(h2Y),
-               tX = abs(tX)) -> res_values2
-
+      if(param=="U"){
+        res_values2 %>%
+          dplyr::mutate(h2X = abs(h2X),
+                        h2Y = abs(h2Y)) -> res_values2
+      }else{
+        res_values2 %>%
+          dplyr::mutate(h2X = abs(h2X),
+                        h2Y = abs(h2Y),
+                        tX = abs(tX)) -> res_values2
+      }
       write.csv(res_values2, paste0("FullRes_",EXP,"-",OUT,"_",nBlock,"blockJK.csv"), row.names = FALSE)
 
       cleanup_files(sjob2)
@@ -193,12 +204,16 @@ lhc_mr = function(SP_list,trait.names,partition=NA,param="comp",account=NA,paral
 
       test.res = as.data.frame(t(matrix(unlist(test.res), nrow=length(unlist(test.res[1])))))
       colnames(test.res)=c("mLL", "h2X","h2Y","tX","tY","axy","ayx","iXY","conv")
-
-      test.res %>%
-        dplyr::mutate(h2X = abs(h2X),
-               h2Y = abs(h2Y),
-               tX = abs(tX)) -> res_values
-
+      if(param=="U"){
+        test.res %>%
+          dplyr::mutate(h2X = abs(h2X),
+                        h2Y = abs(h2Y)) -> res_values
+      }else{
+        test.res %>%
+          dplyr::mutate(h2X = abs(h2X),
+                        h2Y = abs(h2Y),
+                        tX = abs(tX)) -> res_values
+      }
       res_values = cbind("SP"=c(1:nrow(res_values)),"mLL"=res_values[,1],"piX"=piX,"piY"=piY,res_values[,-1],"iX"=iX,"iY"=iY)
       write.csv(res_values, paste0("FullRes_",EXP,"-",OUT,".csv"), row.names = FALSE)
 
@@ -229,12 +244,16 @@ lhc_mr = function(SP_list,trait.names,partition=NA,param="comp",account=NA,paral
 
       test.res1 = as.data.frame(t(matrix(unlist(test.res1), nrow=length(unlist(test.res1[1])))))
       colnames(test.res1)=c("mLL", "h2X","h2Y","tX","tY","axy","ayx","iXY","conv","start_ind", "end_ind")
-
-      test.res1 %>%
-        dplyr::mutate(h2X = abs(h2X),
-               h2Y = abs(h2Y),
-               tX = abs(tX)) -> res_values2
-
+      if(param=="U"){
+        test.res1 %>%
+          dplyr::mutate(h2X = abs(h2X),
+                        h2Y = abs(h2Y)) -> res_values2
+      }else{
+        test.res1 %>%
+          dplyr::mutate(h2X = abs(h2X),
+                        h2Y = abs(h2Y),
+                        tX = abs(tX)) -> res_values2
+      }
       write.csv(res_values2, paste0("FullRes_",EXP,"-",OUT,"_",nBlock,"blockJK.csv"), row.names = FALSE)
 
     }
@@ -280,12 +299,21 @@ lhc_mr = function(SP_list,trait.names,partition=NA,param="comp",account=NA,paral
       # Get output of minus log likelihood (mLL) and estimated parameters from rslurm in the form of a table with nrows equal to nrows(par.df)
       res_temp = get_slurm_out(sjob, outtype = 'table')
       res_values = as.data.frame(do.call(rbind, res_temp[[1]]))
-      res_values %>%
-        dplyr::mutate(h2X = abs(h2X),
-               h2Y = abs(h2Y),
-               tX = abs(tX)) -> res_values
+      if(param=="U"){
+        res_values %>%
+          dplyr::mutate(piX = abs(piX),
+                        piY = abs(piY),
+                        h2X = abs(h2X),
+                        h2Y = abs(h2Y)) -> res_values
+      }else{
+        res_values %>%
+          dplyr::mutate(piX = abs(piX),
+                        piY = abs(piY),
+                        h2X = abs(h2X),
+                        h2Y = abs(h2Y),
+                        tX = abs(tX)) -> res_values
+      }
       res_values = cbind("SP"=c(1:nrow(res_values)),res_values,"iX"=iX,"iY"=iY)
-
       write.csv(res_values, paste0("FullRes_",EXP,"-",OUT,".csv"), row.names = FALSE)
 
       cleanup_files(sjob)
@@ -317,13 +345,20 @@ lhc_mr = function(SP_list,trait.names,partition=NA,param="comp",account=NA,paral
 
       res_temp2 = get_slurm_out(sjob2, outtype = 'table')
       res_values2 = as.data.frame(do.call(rbind, res_temp2[[1]]))
-      res_values2 %>%
-        dplyr::mutate(piX = abs(piX),
-               piY = abs(piY),
-               h2X = abs(h2X),
-               h2Y = abs(h2Y),
-               tX = abs(tX)) -> res_values2
-
+      if(param=="U"){
+        res_values2 %>%
+          dplyr::mutate(piX = abs(piX),
+                        piY = abs(piY),
+                        h2X = abs(h2X),
+                        h2Y = abs(h2Y)) -> res_values2
+      }else{
+        res_values2 %>%
+          dplyr::mutate(piX = abs(piX),
+                        piY = abs(piY),
+                        h2X = abs(h2X),
+                        h2Y = abs(h2Y),
+                        tX = abs(tX)) -> res_values2
+      }
       write.csv(res_values2, paste0("FullRes_",EXP,"-",OUT,"_",nBlock,"blockJK.csv"), row.names = FALSE)
 
       cleanup_files(sjob2)
@@ -347,15 +382,22 @@ lhc_mr = function(SP_list,trait.names,partition=NA,param="comp",account=NA,paral
 
       test.res = as.data.frame(t(matrix(unlist(test.res), nrow=length(unlist(test.res[1])))))
       colnames(test.res)=c("mLL","piX","piY","h2X","h2Y","tX","tY","axy","ayx","iXY","conv")
-
-      test.res %>%
-        dplyr::mutate(
-          piX = abs(piX),
-          piY = abs(piY),
-          h2X = abs(h2X),
-          h2Y = abs(h2Y),
-          tX = abs(tX)) -> res_values
-
+      if(param=="U"){
+        test.res %>%
+          dplyr::mutate(
+            piX = abs(piX),
+            piY = abs(piY),
+            h2X = abs(h2X),
+            h2Y = abs(h2Y)) -> res_values
+      }else{
+        test.res %>%
+          dplyr::mutate(
+            piX = abs(piX),
+            piY = abs(piY),
+            h2X = abs(h2X),
+            h2Y = abs(h2Y),
+            tX = abs(tX)) -> res_values
+      }
       res_values = cbind("SP"=c(1:nrow(res_values)),res_values,"iX"=iX,"iY"=iY)
       write.csv(res_values, paste0("FullRes_",EXP,"-",OUT,".csv"), row.names = FALSE)
 
@@ -386,14 +428,22 @@ lhc_mr = function(SP_list,trait.names,partition=NA,param="comp",account=NA,paral
 
       test.res1 = as.data.frame(t(matrix(unlist(test.res1), nrow=length(unlist(test.res1[1])))))
       colnames(test.res1)=c("mLL","piX","piY","h2X","h2Y","tX","tY","axy","ayx","iXY","conv","start_ind", "end_ind")
-
-      test.res1 %>%
-        dplyr::mutate(piX = abs(piX),
-               piY = abs(piY),
-               h2X = abs(h2X),
-               h2Y = abs(h2Y),
-               tX = abs(tX)) -> res_values2
-
+      if(param=="U"){
+        test.res1 %>%
+          dplyr::mutate(
+            piX = abs(piX),
+            piY = abs(piY),
+            h2X = abs(h2X),
+            h2Y = abs(h2Y)) -> res_values2
+      }else{
+        test.res1 %>%
+          dplyr::mutate(
+            piX = abs(piX),
+            piY = abs(piY),
+            h2X = abs(h2X),
+            h2Y = abs(h2Y),
+            tX = abs(tX)) -> res_values2
+      }
       write.csv(res_values2, paste0("FullRes_",EXP,"-",OUT,"_",nBlock,"blockJK.csv"), row.names = FALSE)
 
     }

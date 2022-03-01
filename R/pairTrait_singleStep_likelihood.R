@@ -40,37 +40,37 @@ pairTrait_singleStep_likelihood <- function(theta,betXY,pi1,sig1,w8s,m0,pi_U=0.1
     iXY = theta[9];
   }
 
-  if(model=="axy"){
-    tX = abs(theta[5]);
-    tY = theta[6];
-    axy = 0;
-    ayx = theta[7];
-    iXY = theta[8];
-  }
-
-  if(model=="ayx"){
-    tX = abs(theta[5]);
-    tY = theta[6];
-    axy = theta[7];
-    ayx = 0;
-    iXY = theta[8];
-  }
-
-  if(model=="tX"){
-    tX = 0;
-    tY = theta[5];
-    axy = theta[6];
-    ayx = theta[7];
-    iXY = theta[8];
-  }
-
-  if(model=="tY"){
-    tX = abs(theta[5]);
-    tY = 0;
-    axy = theta[6];
-    ayx = theta[7];
-    iXY = theta[8];
-  }
+  # if(model=="axy"){
+  #   tX = abs(theta[5]);
+  #   tY = theta[6];
+  #   axy = 0;
+  #   ayx = theta[7];
+  #   iXY = theta[8];
+  # }
+  #
+  # if(model=="ayx"){
+  #   tX = abs(theta[5]);
+  #   tY = theta[6];
+  #   axy = theta[7];
+  #   ayx = 0;
+  #   iXY = theta[8];
+  # }
+  #
+  # if(model=="tX"){
+  #   tX = 0;
+  #   tY = theta[5];
+  #   axy = theta[6];
+  #   ayx = theta[7];
+  #   iXY = theta[8];
+  # }
+  #
+  # if(model=="tY"){
+  #   tX = abs(theta[5]);
+  #   tY = 0;
+  #   axy = theta[6];
+  #   ayx = theta[7];
+  #   iXY = theta[8];
+  # }
 
   if(model=="U"){
     tX = 0;
