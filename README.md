@@ -148,7 +148,7 @@ res = lhc_mr(SP_list, trait.names, paral_method="rslurm", nBlock=200)
 ```
 
 ## Citation
-Our manuscript is under review, but you can read our pre-print [here](https://www.medrxiv.org/content/10.1101/2020.01.27.20018929v3).
+You can find our manuscript [here](https://www.nature.com/articles/s41467-021-26970-w), and you can read our pre-print [here](https://www.medrxiv.org/content/10.1101/2020.01.27.20018929v3).
 
 ## Contact
 Liza Darrous <darrous.liza@gmail.com>
