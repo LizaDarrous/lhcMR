@@ -28,7 +28,7 @@
 #'
 #' @examples
 calculate_SP <- function(input.df,trait.names,run_ldsc=TRUE,run_MR=TRUE,saveRFiles=TRUE,hm3=NA,ld=NA,nStep=2,
-                         SP_single=3,SP_pair=50,SNP_filter=10,SNP_filter_ldsc=NA,nCores=1,M=1e7){
+                         SP_single=3,SP_pair=50,SNP_filter=10,SNP_filter_ldsc=NA,nCores=1,M=1e7, b_file=NULL, plink_path=NULL){
 
   if(nStep>2 || nStep<1){
     cat(print("Please choose 1 or 2 for the number of analysis steps\n"))
@@ -54,7 +54,7 @@ calculate_SP <- function(input.df,trait.names,run_ldsc=TRUE,run_MR=TRUE,saveRFil
   OUT = trait.names[2]
 
   # Get estimates of starting points from LDSC and standard MR method (IVW)
-  SP = gettingSP_ldscMR(input.df,trait.names,run_ldsc,run_MR,saveRFiles,SNP_filter_ldsc,hm3,ld)
+  SP = gettingSP_ldscMR(input.df,trait.names,run_ldsc,run_MR,saveRFiles,SNP_filter_ldsc,hm3,ld, b_file = b_file, plink_path = plink_path)
   i_XY = as.numeric(SP[[1]])
   axy_MR = as.numeric(SP[[2]])
   ayx_MR = as.numeric(SP[[3]])

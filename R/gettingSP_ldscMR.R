@@ -14,7 +14,44 @@
 #' @return
 #' @keywords internal
 # NOT EXPORTED @export
-gettingSP_ldscMR = function(input.df,trait.names,run_ldsc=TRUE,run_MR=TRUE,saveRFiles=TRUE,SNP_filter_ldsc,hm3,ld){
+ld_clump_local <- function(dat, clump_kb = 10000, clump_r2 = 0.001, clump_p1 = 1, clump_p2 = 1, pop = "EUR", b_file, plink_path) {
+  pval_column <- "pval.exposure"
+  if (!is.data.frame(dat)) {
+    stop("Expecting data frame returned from format_data")
+  }
+  if ("pval.exposure" %in% names(dat) & "pval.outcome" %in%
+    names(dat)) {
+    message("pval.exposure and pval.outcome columns present. Using pval.exposure for clumping.")
+  } else if (!"pval.exposure" %in% names(dat) & "pval.outcome" %in%
+    names(dat)) {
+    message("pval.exposure column not present, using pval.outcome column for clumping.")
+    pval_column <- "pval.outcome"
+  } else if (!"pval.exposure" %in% names(dat)) {
+    message("pval.exposure not present, setting clumping p-value to 0.99 for all variants")
+    dat$pval.exposure <- 0.99
+  } else {
+    pval_column <- "pval.exposure"
+  }
+  if (!"id.exposure" %in% names(dat)) {
+    dat$id.exposure <- random_string(1)
+  }
+  d <- data.frame(
+    rsid = dat$SNP, pval = dat[[pval_column]],
+    id = dat$id.exposure
+  )
+  out <- ieugwasr::ld_clump(d,
+    clump_kb = clump_kb, clump_r2 = clump_r2,
+    clump_p = clump_p1, pop = pop,
+    bfile = b_file, plink_bin = plink_path
+  )
+  keep <- paste(dat$SNP, dat$id.exposure) %in% paste(
+    out$rsid,
+    out$id
+  )
+  return(dat[keep, ])
+}
+
+gettingSP_ldscMR = function(input.df,trait.names,run_ldsc=TRUE,run_MR=TRUE,saveRFiles=TRUE,SNP_filter_ldsc,hm3,ld,plink_path=NULL,b_file=NULL){
 
   EXP = trait.names[1]
   OUT = trait.names[2]
@@ -146,7 +183,12 @@ gettingSP_ldscMR = function(input.df,trait.names,run_ldsc=TRUE,run_MR=TRUE,saveR
     exp_data = c()
     for (x in 1:length(clump_bin)) {
       temp = exp_dat[exp_dat$SNP %in% clump_bin[[x]]$SNP,]
-      temp1 = TwoSampleMR::clump_data(temp)
+      if (is.null(plink_path)) {
+        temp1 = TwoSampleMR::clump_data(temp)
+      } else {
+        temp1 = ld_clump_local(temp, plink_path=plink_path,b_file = b_file)
+
+      }
       exp_data=rbind(exp_data,temp1)
     }
 
@@ -237,7 +279,11 @@ gettingSP_ldscMR = function(input.df,trait.names,run_ldsc=TRUE,run_MR=TRUE,saveR
     exp_data = c()
     for (x in 1:length(clump_bin)) {
       temp = exp_dat[exp_dat$SNP %in% clump_bin[[x]]$SNP,]
-      temp1 = TwoSampleMR::clump_data(temp)
+      if (is.null(plink_path)) {
+        temp1 = TwoSampleMR::clump_data(temp)
+      } else {
+        temp1 = ld_clump_local(temp, plink_path=plink_path,b_file = b_file)
+      }
       exp_data=rbind(exp_data,temp1)
     }
 
